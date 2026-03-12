@@ -1,0 +1,8 @@
+# Android Project Dependencies
+# Gradle dependencies are managed in build.gradle.kts files
+
+# For demo/testing (if needed)
+# python>=3.8
+# jupyter
+# pandas
+# matplotlib
