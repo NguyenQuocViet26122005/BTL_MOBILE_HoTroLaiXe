@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".MainActivity">
+
+    <!-- Top Bar -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:paddingHorizontal="16dp"
+        android:background="@color/black">
+
+        <TextView
+            android:id="@+id/btnSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cài đặt"
+            android:textColor="@color/blue_accent"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hạng A"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/btnSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tìm kiếm"
+            android:textColor="@color/blue_accent"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Scrollable Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomNav"
+        android:layout_below="@id/topBar"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <!-- Grid Menu -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="4"
+                        android:useDefaultMargins="true">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical">
+                            <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_edit" android:background="@drawable/bg_circle_blue" android:padding="10dp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="THI THỬ" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="8dp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical">
+                            <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_save" android:background="@drawable/bg_circle_green" android:padding="10dp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="LƯU" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="8dp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical">
+                            <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_close_clear_cancel" android:background="@drawable/bg_circle_red" android:padding="10dp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CÂU SAI" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="8dp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical">
+                            <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_agenda" android:background="@drawable/bg_circle_orange" android:padding="10dp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CÂU KHÓ" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="8dp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical" android:layout_marginTop="16dp">
+                            <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_directions" android:background="@drawable/bg_circle_blue" android:padding="10dp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SA HÌNH" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="8dp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical" android:layout_marginTop="16dp">
+                            <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_view" android:background="@drawable/bg_circle_green" android:padding="10dp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MẸO" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="8dp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical" android:layout_marginTop="16dp">
+                            <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_help" android:background="@drawable/bg_circle_red" android:padding="10dp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="BIỂN BÁO" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="8dp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical" android:layout_marginTop="16dp">
+                            <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_share" android:background="@drawable/bg_circle_purple" android:padding="10dp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HỎI ĐÁP" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="8dp" android:textStyle="bold"/>
+                        </LinearLayout>
+                    </GridLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Tiến độ ôn tập -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+                    <TextView android:id="@+id/tvProgTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tiến độ ôn tập" android:textColor="@color/white" android:textSize="20sp" android:textStyle="bold" />
+                    <ProgressBar android:id="@+id/pbMain" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="8dp" android:layout_below="@id/tvProgTitle" android:layout_marginTop="16dp" android:progress="88" android:progressDrawable="@drawable/custom_progress_blue" android:layout_toStartOf="@id/llSafety" android:layout_marginEnd="16dp" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/pbMain" android:layout_marginTop="12dp" android:orientation="horizontal" android:layout_toStartOf="@id/llSafety">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="224 đúng / 250 câu" android:textColor="@color/text_grey" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <LinearLayout android:id="@+id/llSafety" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:gravity="center_horizontal" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chỉ số\nan toàn" android:textColor="@color/text_grey" android:textSize="10sp" android:gravity="center" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="88%" android:textColor="@color/green_success" android:textSize="32sp" android:textStyle="bold" />
+                    </LinearLayout>
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:text="Ôn tập theo chủ đề"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <!-- Ôn tập theo chủ đề Items (Full 250 questions list for Hạng A) -->
+
+            <!-- 1. Câu hỏi điểm liệt -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔥 Câu hỏi điểm liệt" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
+                    <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="100" android:progressDrawable="@drawable/custom_progress_blue" />
+                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20/20 câu hỏi" android:textColor="@color/text_grey" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="20 câu đúng" android:textColor="@color/text_grey" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 2. Khái niệm và quy tắc -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🚦 Khái niệm và quy tắc" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
+                    <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="86" android:progressDrawable="@drawable/custom_progress_blue" />
+                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="100/100 câu hỏi" android:textColor="@color/text_grey" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="86 câu đúng  14 câu sai" android:textColor="@color/text_grey" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 3. Văn hoá và đạo đức -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👤 Văn hoá và đạo đức" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
+                    <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="100" android:progressDrawable="@drawable/custom_progress_blue" />
+                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10/10 câu hỏi" android:textColor="@color/text_grey" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="10 câu đúng" android:textColor="@color/text_grey" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 4. Kỹ thuật lái xe -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🚗 Kỹ thuật lái xe" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
+                    <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="100" android:progressDrawable="@drawable/custom_progress_blue" />
+                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15/15 câu hỏi" android:textColor="@color/text_grey" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="15 câu đúng" android:textColor="@color/text_grey" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 5. Biển báo đường bộ -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⚠️ Biển báo đường bộ" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
+                    <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="91" android:progressDrawable="@drawable/custom_progress_blue" />
+                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="65/65 câu hỏi" android:textColor="@color/text_grey" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="58 câu đúng  7 câu sai" android:textColor="@color/text_grey" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 6. Sa hình -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="32dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🚧 Sa hình" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
+                    <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="88" android:progressDrawable="@drawable/custom_progress_blue" />
+                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="35/35 câu hỏi" android:textColor="@color/text_grey" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="31 câu đúng  4 câu sai" android:textColor="@color/text_grey" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom Nav -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/black"
+        app:itemIconTint="@color/blue_accent"
+        app:itemTextColor="@color/blue_accent"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu" />
+
+</RelativeLayout>
