@@ -420,7 +420,13 @@
             <!-- Ôn tập theo chủ đề Items (Full 250 questions list for Hạng A) -->
 
             <!-- 1. Câu hỏi điểm liệt -->
-            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+            <androidx.cardview.widget.CardView 
+                android:id="@+id/cardCriticalQuestions"
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:layout_marginBottom="12dp" 
+                app:cardBackgroundColor="@color/card_background" 
+                app:cardCornerRadius="16dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔥 Câu hỏi điểm liệt" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
                     <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="100" android:progressDrawable="@drawable/custom_progress_blue" />
@@ -432,7 +438,13 @@
             </androidx.cardview.widget.CardView>
 
             <!-- 2. Khái niệm và quy tắc -->
-            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+            <androidx.cardview.widget.CardView 
+                android:id="@+id/cardConceptsRules"
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:layout_marginBottom="12dp" 
+                app:cardBackgroundColor="@color/card_background" 
+                app:cardCornerRadius="16dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🚦 Khái niệm và quy tắc" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
                     <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="86" android:progressDrawable="@drawable/custom_progress_blue" />
@@ -444,7 +456,13 @@
             </androidx.cardview.widget.CardView>
 
             <!-- 3. Văn hoá và đạo đức -->
-            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+            <androidx.cardview.widget.CardView 
+                android:id="@+id/cardCultureEthics"
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:layout_marginBottom="12dp" 
+                app:cardBackgroundColor="@color/card_background" 
+                app:cardCornerRadius="16dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👤 Văn hoá và đạo đức" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
                     <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="100" android:progressDrawable="@drawable/custom_progress_blue" />
@@ -456,7 +474,13 @@
             </androidx.cardview.widget.CardView>
 
             <!-- 4. Kỹ thuật lái xe -->
-            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+            <androidx.cardview.widget.CardView 
+                android:id="@+id/cardDrivingTechniques"
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:layout_marginBottom="12dp" 
+                app:cardBackgroundColor="@color/card_background" 
+                app:cardCornerRadius="16dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🚗 Kỹ thuật lái xe" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
                     <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="100" android:progressDrawable="@drawable/custom_progress_blue" />
@@ -468,7 +492,13 @@
             </androidx.cardview.widget.CardView>
 
             <!-- 5. Biển báo đường bộ -->
-            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+            <androidx.cardview.widget.CardView 
+                android:id="@+id/cardTrafficSigns"
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:layout_marginBottom="12dp" 
+                app:cardBackgroundColor="@color/card_background" 
+                app:cardCornerRadius="16dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⚠️ Biển báo đường bộ" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
                     <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="91" android:progressDrawable="@drawable/custom_progress_blue" />
@@ -480,7 +510,13 @@
             </androidx.cardview.widget.CardView>
 
             <!-- 6. Sa hình -->
-            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="32dp" app:cardBackgroundColor="@color/card_background" app:cardCornerRadius="16dp">
+            <androidx.cardview.widget.CardView 
+                android:id="@+id/cardSituations"
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:layout_marginBottom="32dp" 
+                app:cardBackgroundColor="@color/card_background" 
+                app:cardCornerRadius="16dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🚧 Sa hình" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
                     <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="12dp" android:progress="88" android:progressDrawable="@drawable/custom_progress_blue" />
