@@ -1,9 +1,11 @@
 package com.example.btl_banglaixe;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +13,8 @@ import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.example.btl_banglaixe.utils.JsonImporter;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,78 +29,51 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Import câu hỏi lần đầu tiên
+        importQuestionsFirstTime();
+
         setupListeners();
+    }
+
+    private void importQuestionsFirstTime() {
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        
+        // Kiểm tra đã import chưa
+        if (!prefs.getBoolean("questions_imported", false)) {
+            // Import câu hỏi từ file JSON
+            int count = JsonImporter.importQuestionsFromAssets(this, "questions_hang_a.json");
+            
+            if (count > 0) {
+                // Đánh dấu đã import
+                prefs.edit().putBoolean("questions_imported", true).apply();
+                Toast.makeText(this, "Đã import " + count + " câu hỏi thành công!", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Lỗi khi import câu hỏi", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void setupListeners() {
         // Nút Cài đặt
-        TextView btnSettings = findViewById(R.id.btnSettings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-            }
-        });
+        findViewById(R.id.btnSettings).setOnClickListener(v -> 
+            startActivity(new Intent(this, SettingsActivity.class))
+        );
 
-        // Card chủ đề - Câu hỏi điểm liệt
-        CardView cardCriticalQuestions = findViewById(R.id.cardCriticalQuestions);
-        cardCriticalQuestions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openQuestionActivity("Câu hỏi điểm liệt");
-            }
-        });
+        // Setup các card chủ đề với lambda
+        setupCategoryCard(R.id.cardCriticalQuestions, "Câu hỏi điểm liệt");
+        setupCategoryCard(R.id.cardConceptsRules, "Khái niệm và quy tắc");
+        setupCategoryCard(R.id.cardCultureEthics, "Văn hóa và đạo đức");
+        setupCategoryCard(R.id.cardDrivingTechniques, "Kỹ thuật lái xe");
+        setupCategoryCard(R.id.cardTrafficSigns, "Biển báo đường bộ");
+        setupCategoryCard(R.id.cardSituations, "Sa hình");
+    }
 
-        // Card chủ đề - Khái niệm và quy tắc
-        CardView cardConceptsRules = findViewById(R.id.cardConceptsRules);
-        cardConceptsRules.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openQuestionActivity("Khái niệm và quy tắc");
-            }
-        });
-
-        // Card chủ đề - Văn hóa và đạo đức
-        CardView cardCultureEthics = findViewById(R.id.cardCultureEthics);
-        cardCultureEthics.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openQuestionActivity("Văn hóa và đạo đức");
-            }
-        });
-
-        // Card chủ đề - Kỹ thuật lái xe
-        CardView cardDrivingTechniques = findViewById(R.id.cardDrivingTechniques);
-        cardDrivingTechniques.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openQuestionActivity("Kỹ thuật lái xe");
-            }
-        });
-
-        // Card chủ đề - Biển báo đường bộ
-        CardView cardTrafficSigns = findViewById(R.id.cardTrafficSigns);
-        cardTrafficSigns.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openQuestionActivity("Biển báo đường bộ");
-            }
-        });
-
-        // Card chủ đề - Sa hình
-        CardView cardSituations = findViewById(R.id.cardSituations);
-        cardSituations.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openQuestionActivity("Sa hình");
-            }
-        });
+    private void setupCategoryCard(int cardId, String category) {
+        findViewById(cardId).setOnClickListener(v -> openQuestionActivity(category));
     }
 
     private void openQuestionActivity(String category) {
-        Intent intent = new Intent(MainActivity.this, QuestionActivity.class);
-        intent.putExtra("category", category);
-        startActivity(intent);
+        startActivity(new Intent(this, QuestionActivity.class)
+            .putExtra("category", category));
     }
 }

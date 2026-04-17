@@ -97,18 +97,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void insertSampleData(SQLiteDatabase db) {
         // Thêm các chủ đề vào bảng tiến độ
-        db.execSQL("INSERT INTO " + TABLE_PROGRESS + " (" + COLUMN_CATEGORY_NAME + ", " 
-                + COLUMN_TOTAL_QUESTIONS + ") VALUES ('Câu hỏi điểm liệt', 20)");
-        db.execSQL("INSERT INTO " + TABLE_PROGRESS + " (" + COLUMN_CATEGORY_NAME + ", " 
-                + COLUMN_TOTAL_QUESTIONS + ") VALUES ('Khái niệm và quy tắc', 100)");
-        db.execSQL("INSERT INTO " + TABLE_PROGRESS + " (" + COLUMN_CATEGORY_NAME + ", " 
-                + COLUMN_TOTAL_QUESTIONS + ") VALUES ('Văn hóa và đạo đức', 10)");
-        db.execSQL("INSERT INTO " + TABLE_PROGRESS + " (" + COLUMN_CATEGORY_NAME + ", " 
-                + COLUMN_TOTAL_QUESTIONS + ") VALUES ('Kỹ thuật lái xe', 15)");
-        db.execSQL("INSERT INTO " + TABLE_PROGRESS + " (" + COLUMN_CATEGORY_NAME + ", " 
-                + COLUMN_TOTAL_QUESTIONS + ") VALUES ('Biển báo đường bộ', 65)");
-        db.execSQL("INSERT INTO " + TABLE_PROGRESS + " (" + COLUMN_CATEGORY_NAME + ", " 
-                + COLUMN_TOTAL_QUESTIONS + ") VALUES ('Sa hình', 35)");
+        String[] categories = {
+            "Câu hỏi điểm liệt", "Khái niệm và quy tắc", "Văn hóa và đạo đức",
+            "Kỹ thuật lái xe", "Biển báo đường bộ", "Sa hình"
+        };
+        int[] questionCounts = {20, 100, 10, 15, 65, 35};
+        
+        for (int i = 0; i < categories.length; i++) {
+            db.execSQL("INSERT INTO " + TABLE_PROGRESS + " (" + COLUMN_CATEGORY_NAME + ", " 
+                    + COLUMN_TOTAL_QUESTIONS + ") VALUES (?, ?)", 
+                    new Object[]{categories[i], questionCounts[i]});
+        }
 
         // Thêm câu hỏi mẫu
         insertSampleQuestion(db, 
@@ -116,24 +115,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "Là người điều khiển phương tiện tham gia giao thông đường bộ",
             "Là người đi bộ tham gia giao thông đường bộ",
             "Là người điều khiển, người sử dụng phương tiện và người đi bộ tham gia giao thông đường bộ",
-            null,
-            "C",
-            "Khái niệm và quy tắc",
-            1,
-            null,
+            null, "C", "Khái niệm và quy tắc", 1, null,
             "Người tham gia giao thông bao gồm cả người điều khiển phương tiện, người sử dụng phương tiện và người đi bộ."
         );
 
         insertSampleQuestion(db,
             "Người điều khiển phương tiện giao thông đường bộ mà trong cơ thể có chất ma túy có bị nghiêm cấm hay không?",
-            "Bị nghiêm cấm",
-            "Không bị nghiêm cấm",
+            "Bị nghiêm cấm", "Không bị nghiêm cấm",
             "Không bị nghiêm cấm nếu có chất ma túy ở mức nhẹ",
-            null,
-            "A",
-            "Câu hỏi điểm liệt",
-            1,
-            null,
+            null, "A", "Câu hỏi điểm liệt", 1, null,
             "Đây là câu hỏi điểm liệt. Tuyệt đối nghiêm cấm điều khiển phương tiện khi có chất ma túy trong cơ thể."
         );
     }

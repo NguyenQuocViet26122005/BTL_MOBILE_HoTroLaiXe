@@ -1,0 +1,43 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question_text": "Khái niệm 'Người tham gia giao thông đường bộ' được hiểu như thế nào?",
+      "option_a": "Là người điều khiển phương tiện tham gia giao thông đường bộ",
+      "option_b": "Là người đi bộ tham gia giao thông đường bộ",
+      "option_c": "Là người điều khiển, người sử dụng phương tiện và người đi bộ tham gia giao thông đường bộ",
+      "option_d": null,
+      "correct_answer": "C",
+      "category": "Khái niệm và quy tắc",
+      "is_critical": 0,
+      "image_path": null,
+      "explanation": "Người tham gia giao thông bao gồm cả người điều khiển phương tiện, người sử dụng phương tiện và người đi bộ."
+    },
+    {
+      "id": 2,
+      "question_text": "Người điều khiển phương tiện giao thông đường bộ mà trong cơ thể có chất ma túy có bị nghiêm cấm hay không?",
+      "option_a": "Bị nghiêm cấm",
+      "option_b": "Không bị nghiêm cấm",
+      "option_c": null,
+      "option_d": null,
+      "correct_answer": "A",
+      "category": "Câu hỏi điểm liệt",
+      "is_critical": 1,
+      "image_path": null,
+      "explanation": "Đây là câu hỏi điểm liệt. Tuyệt đối nghiêm cấm điều khiển phương tiện khi có chất ma túy trong cơ thể."
+    },
+    {
+      "id": 3,
+      "question_text": "Biển báo này có ý nghĩa gì?",
+      "option_a": "Cấm đi thẳng",
+      "option_b": "Cấm rẽ trái",
+      "option_c": "Cấm rẽ phải",
+      "option_d": "Cấm quay đầu",
+      "correct_answer": "A",
+      "category": "Biển báo đường bộ",
+      "is_critical": 0,
+      "image_path": "signs/sign_no_straight.png",
+      "explanation": "Biển báo cấm đi thẳng theo hướng mũi tên chỉ."
+    }
+  ]
+}

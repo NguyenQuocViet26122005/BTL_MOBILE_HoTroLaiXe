@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "question_text": "Người điều khiển phương tiện giao thông đường bộ mà trong cơ thể có chất ma túy có bị nghiêm cấm hay không?",
+      "option_a": "Bị nghiêm cấm",
+      "option_b": "Không bị nghiêm cấm",
+      "option_c": null,
+      "option_d": null,
+      "correct_answer": "A",
+      "category": "Câu hỏi điểm liệt",
+      "is_critical": 1,
+      "image_path": null,
+      "explanation": "Tuyệt đối nghiêm cấm điều khiển phương tiện khi có chất ma túy trong cơ thể."
+    },
+    {
+      "question_text": "Người điều khiển xe mô tô hai bánh, xe mô tô ba bánh, xe gắn máy có được phép sử dụng xe để kéo hoặc đẩy các phương tiện khác khi tham gia giao thông không?",
+      "option_a": "Được phép",
+      "option_b": "Không được phép",
+      "option_c": "Được phép tuỳ trường hợp",
+      "option_d": null,
+      "correct_answer": "B",
+      "category": "Câu hỏi điểm liệt",
+      "is_critical": 1,
+      "image_path": null,
+      "explanation": "Không được phép sử dụng xe mô tô để kéo hoặc đẩy các phương tiện khác."
+    },
+    {
+      "question_text": "Khái niệm 'Người tham gia giao thông đường bộ' được hiểu như thế nào?",
+      "option_a": "Là người điều khiển phương tiện tham gia giao thông đường bộ",
+      "option_b": "Là người đi bộ tham gia giao thông đường bộ",
+      "option_c": "Là người điều khiển, người sử dụng phương tiện và người đi bộ tham gia giao thông đường bộ",
+      "option_d": null,
+      "correct_answer": "C",
+      "category": "Khái niệm và quy tắc",
+      "is_critical": 0,
+      "image_path": null,
+      "explanation": "Người tham gia giao thông bao gồm cả người điều khiển phương tiện, người sử dụng phương tiện và người đi bộ."
+    },
+    {
+      "question_text": "'Phương tiện giao thông đường bộ' gồm những loại nào?",
+      "option_a": "Phương tiện giao thông cơ giới đường bộ",
+      "option_b": "Phương tiện giao thông thô sơ đường bộ và xe máy chuyên dùng",
+      "option_c": "Cả ý 1 và ý 2",
+      "option_d": null,
+      "correct_answer": "C",
+      "category": "Khái niệm và quy tắc",
+      "is_critical": 0,
+      "image_path": null,
+      "explanation": "Phương tiện giao thông đường bộ gồm cả phương tiện cơ giới và phương tiện thô sơ."
+    },
+    {
+      "question_text": "Người lái xe phải làm gì khi tham gia giao thông và có hành vi văn hóa giao thông?",
+      "option_a": "Điều khiển phương tiện đúng tốc độ quy định và chấp hành hiệu lệnh của biển báo hiệu",
+      "option_b": "Chấp hành quy tắc giao thông đường bộ, không gây cản trở giao thông",
+      "option_c": "Cả ý 1 và ý 2",
+      "option_d": null,
+      "correct_answer": "C",
+      "category": "Văn hóa và đạo đức",
+      "is_critical": 0,
+      "image_path": null,
+      "explanation": "Người lái xe phải chấp hành đầy đủ các quy tắc giao thông và có ý thức văn hóa."
+    }
+  ]
+}

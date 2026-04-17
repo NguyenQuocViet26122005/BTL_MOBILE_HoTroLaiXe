@@ -99,34 +99,33 @@ public class QuestionActivity extends AppCompatActivity {
 
     private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());
+        btnBookmark.setOnClickListener(v -> 
+            Toast.makeText(this, "Đã lưu câu hỏi", Toast.LENGTH_SHORT).show()
+        );
 
-        btnBookmark.setOnClickListener(v -> {
-            // TODO: Implement bookmark functionality
-            Toast.makeText(this, "Đã lưu câu hỏi", Toast.LENGTH_SHORT).show();
-        });
-
+        // Setup các option cards
         cardOptionA.setOnClickListener(v -> selectAnswer("A"));
         cardOptionB.setOnClickListener(v -> selectAnswer("B"));
         cardOptionC.setOnClickListener(v -> selectAnswer("C"));
         cardOptionD.setOnClickListener(v -> selectAnswer("D"));
 
-        btnPrevious.setOnClickListener(v -> {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                resetQuestion();
-                displayQuestion();
-            }
-        });
+        btnPrevious.setOnClickListener(v -> navigateQuestion(-1));
+        btnNext.setOnClickListener(v -> navigateQuestion(1));
+    }
 
-        btnNext.setOnClickListener(v -> {
-            if (currentQuestionIndex < questions.size() - 1) {
-                currentQuestionIndex++;
-                resetQuestion();
-                displayQuestion();
-            } else {
+    private void navigateQuestion(int direction) {
+        int newIndex = currentQuestionIndex + direction;
+        
+        if (newIndex < 0 || newIndex >= questions.size()) {
+            if (direction > 0) {
                 Toast.makeText(this, "Đã hết câu hỏi!", Toast.LENGTH_SHORT).show();
             }
-        });
+            return;
+        }
+        
+        currentQuestionIndex = newIndex;
+        resetQuestion();
+        displayQuestion();
     }
 
     private void displayQuestion() {
@@ -134,44 +133,26 @@ public class QuestionActivity extends AppCompatActivity {
 
         Question question = questions.get(currentQuestionIndex);
 
-        // Cập nhật số câu hỏi
+        // Cập nhật số câu hỏi và progress
         tvQuestionNumber.setText("Câu " + (currentQuestionIndex + 1) + "/" + questions.size());
         progressBar.setMax(questions.size());
         progressBar.setProgress(currentQuestionIndex + 1);
 
-        // Hiển thị câu hỏi
+        // Hiển thị câu hỏi và badge điểm liệt
         tvQuestion.setText(question.getQuestionText());
-
-        // Hiển thị badge điểm liệt
         criticalBadge.setVisibility(question.isCritical() ? View.VISIBLE : View.GONE);
 
-        // Hiển thị ảnh (nếu có)
-        if (question.getImagePath() != null && !question.getImagePath().isEmpty()) {
-            imageCard.setVisibility(View.VISIBLE);
-            // TODO: Load image from path
-            // Glide.with(this).load(question.getImagePath()).into(ivQuestion);
-        } else {
-            imageCard.setVisibility(View.GONE);
-        }
+        // Hiển thị ảnh nếu có
+        imageCard.setVisibility(
+            question.getImagePath() != null && !question.getImagePath().isEmpty() 
+            ? View.VISIBLE : View.GONE
+        );
 
-        // Hiển thị đáp án
+        // Hiển thị các đáp án
         tvOptionA.setText(question.getOptionA());
         tvOptionB.setText(question.getOptionB());
-
-        // Ẩn/hiện đáp án C và D nếu null
-        if (question.getOptionC() != null && !question.getOptionC().isEmpty()) {
-            cardOptionC.setVisibility(View.VISIBLE);
-            tvOptionC.setText(question.getOptionC());
-        } else {
-            cardOptionC.setVisibility(View.GONE);
-        }
-
-        if (question.getOptionD() != null && !question.getOptionD().isEmpty()) {
-            cardOptionD.setVisibility(View.VISIBLE);
-            tvOptionD.setText(question.getOptionD());
-        } else {
-            cardOptionD.setVisibility(View.GONE);
-        }
+        setOptionVisibility(cardOptionC, tvOptionC, question.getOptionC());
+        setOptionVisibility(cardOptionD, tvOptionD, question.getOptionD());
 
         // Hiển thị giải thích
         if (question.getExplanation() != null && !question.getExplanation().isEmpty()) {
@@ -180,6 +161,15 @@ public class QuestionActivity extends AppCompatActivity {
 
         // Cập nhật nút Previous
         btnPrevious.setEnabled(currentQuestionIndex > 0);
+    }
+
+    private void setOptionVisibility(CardView card, TextView textView, String option) {
+        if (option != null && !option.isEmpty()) {
+            card.setVisibility(View.VISIBLE);
+            textView.setText(option);
+        } else {
+            card.setVisibility(View.GONE);
+        }
     }
 
     private void selectAnswer(String answer) {
@@ -199,24 +189,24 @@ public class QuestionActivity extends AppCompatActivity {
     }
 
     private void highlightAnswer(String selected, String correct) {
-        // Reset tất cả
         resetCardColors();
 
-        // Highlight đáp án đã chọn
         CardView selectedCard = getCardByAnswer(selected);
-        if (selectedCard != null) {
-            if (selected.equals(correct)) {
-                // Đúng - màu xanh
-                selectedCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.green_success));
-            } else {
-                // Sai - màu đỏ
-                selectedCard.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
-                
-                // Hiển thị đáp án đúng
-                CardView correctCard = getCardByAnswer(correct);
-                if (correctCard != null) {
-                    correctCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.green_success));
-                }
+        if (selectedCard == null) return;
+
+        // Highlight đáp án đã chọn
+        int color = selected.equals(correct) 
+            ? R.color.green_success 
+            : android.R.color.holo_red_dark;
+        selectedCard.setCardBackgroundColor(ContextCompat.getColor(this, color));
+
+        // Nếu sai, hiển thị đáp án đúng
+        if (!selected.equals(correct)) {
+            CardView correctCard = getCardByAnswer(correct);
+            if (correctCard != null) {
+                correctCard.setCardBackgroundColor(
+                    ContextCompat.getColor(this, R.color.green_success)
+                );
             }
         }
     }
@@ -233,10 +223,9 @@ public class QuestionActivity extends AppCompatActivity {
 
     private void resetCardColors() {
         int defaultColor = ContextCompat.getColor(this, R.color.card_background);
-        cardOptionA.setCardBackgroundColor(defaultColor);
-        cardOptionB.setCardBackgroundColor(defaultColor);
-        cardOptionC.setCardBackgroundColor(defaultColor);
-        cardOptionD.setCardBackgroundColor(defaultColor);
+        for (CardView card : new CardView[]{cardOptionA, cardOptionB, cardOptionC, cardOptionD}) {
+            card.setCardBackgroundColor(defaultColor);
+        }
     }
 
     private void resetQuestion() {
