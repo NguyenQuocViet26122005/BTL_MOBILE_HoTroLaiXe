@@ -113,6 +113,18 @@ public class ExamQuestionActivity extends AppCompatActivity {
         
         // Tạo đề thi
         examQuestions = ExamGenerator.generateExam(questionDAO, examId);
+        
+        // Kiểm tra nếu không có câu hỏi
+        if (examQuestions == null || examQuestions.isEmpty()) {
+            new AlertDialog.Builder(this)
+                .setTitle("Lỗi")
+                .setMessage("Không thể tạo đề thi. Vui lòng thử lại.")
+                .setPositiveButton("OK", (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
+            return;
+        }
+        
         userAnswers = new ArrayList<>();
         for (int i = 0; i < examQuestions.size(); i++) {
             userAnswers.add("");
@@ -133,6 +145,10 @@ public class ExamQuestionActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
+        if (timer != null) {
+            timer.cancel();
+        }
+        
         timer = new CountDownTimer(timeLeftInMillis, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -215,7 +231,6 @@ public class ExamQuestionActivity extends AppCompatActivity {
 
         // Cập nhật nút Previous/Next
         btnPrevious.setEnabled(currentQuestionIndex > 0);
-        btnNext.setText(currentQuestionIndex == 24 ? "Nộp bài" : "Câu tiếp");
     }
 
     private void setOptionVisibility(CardView card, TextView textView, String option) {
@@ -266,11 +281,6 @@ public class ExamQuestionActivity extends AppCompatActivity {
         if (showAnswerImmediately) {
             highlightCorrectAnswer(correctAnswer, answer);
             explanationCard.setVisibility(View.VISIBLE);
-            
-            // Kiểm tra trượt ngay
-            if (criticalWrongCount > 0 || wrongCount > maxWrongAllowed) {
-                showFailedDialog();
-            }
         } else {
             highlightSelectedAnswer(answer);
         }
@@ -339,9 +349,6 @@ public class ExamQuestionActivity extends AppCompatActivity {
         int newIndex = currentQuestionIndex + direction;
         
         if (newIndex < 0 || newIndex >= examQuestions.size()) {
-            if (direction > 0) {
-                submitExam();
-            }
             return;
         }
         
@@ -424,19 +431,6 @@ public class ExamQuestionActivity extends AppCompatActivity {
             })
             .setNegativeButton("Về trang chủ", (dialog, which) -> finish())
             .setCancelable(false)
-            .show();
-    }
-
-    private void showFailedDialog() {
-        String reason = criticalWrongCount > 0 
-            ? "Bạn đã sai câu điểm liệt!" 
-            : "Bạn đã sai quá " + maxWrongAllowed + " câu!";
-        
-        new AlertDialog.Builder(this)
-            .setTitle("😢 Rớt")
-            .setMessage(reason + "\n\nBạn có muốn tiếp tục làm các câu còn lại?")
-            .setPositiveButton("Tiếp tục", null)
-            .setNegativeButton("Nộp bài", (dialog, which) -> calculateResult())
             .show();
     }
 

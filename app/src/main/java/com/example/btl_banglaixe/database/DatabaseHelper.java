@@ -13,7 +13,7 @@ import java.io.OutputStream;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "questions.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
     
     private final Context context;
 
@@ -97,6 +97,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 3) {
             createBookmarksTable(db);
+        }
+        
+        // Nếu upgrade từ version cũ, xóa và copy lại database
+        if (oldVersion < 5) {
+            // Đóng database
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
+            
+            // Xóa database cũ
+            String dbPath = context.getDatabasePath(DATABASE_NAME).getPath();
+            File dbFile = new File(dbPath);
+            if (dbFile.exists()) {
+                boolean deleted = dbFile.delete();
+                android.util.Log.d("DatabaseHelper", "Old database deleted: " + deleted);
+            }
+            
+            // Copy database mới từ assets
+            copyDatabase();
+            android.util.Log.d("DatabaseHelper", "New database copied from assets");
         }
     }
 
