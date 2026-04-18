@@ -3,16 +3,10 @@ package com.example.btl_banglaixe;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.btl_banglaixe.utils.JsonImporter;
 
@@ -20,35 +14,40 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Apply theme before super.onCreate
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("dark_mode", false);
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+        
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
         // Import câu hỏi lần đầu tiên
         importQuestionsFirstTime();
 
         setupListeners();
+        updateLicenseType();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateLicenseType();
     }
 
     private void importQuestionsFirstTime() {
         SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
         
-        // Kiểm tra đã import chưa
         if (!prefs.getBoolean("questions_imported", false)) {
-            // Import câu hỏi từ file JSON
             int count = JsonImporter.importQuestionsFromAssets(this, "questions_hang_a.json");
             
             if (count > 0) {
-                // Đánh dấu đã import
                 prefs.edit().putBoolean("questions_imported", true).apply();
-                Toast.makeText(this, "Đã import " + count + " câu hỏi thành công!", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Lỗi khi import câu hỏi", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Đã import " + count + " câu hỏi!", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -59,7 +58,24 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, SettingsActivity.class))
         );
 
-        // Setup các card chủ đề với lambda
+        // Quick Actions
+        findViewById(R.id.cardStudy).setOnClickListener(v -> 
+            openQuestionActivity("Khái niệm và quy tắc")
+        );
+        
+        findViewById(R.id.cardSigns).setOnClickListener(v -> 
+            openQuestionActivity("Biển báo đường bộ")
+        );
+        
+        findViewById(R.id.cardExam).setOnClickListener(v -> 
+            Toast.makeText(this, "Chức năng thi thử đang phát triển", Toast.LENGTH_SHORT).show()
+        );
+        
+        findViewById(R.id.cardBookmark).setOnClickListener(v -> 
+            Toast.makeText(this, "Chức năng đánh dấu đang phát triển", Toast.LENGTH_SHORT).show()
+        );
+
+        // Danh mục học tập
         setupCategoryCard(R.id.cardCriticalQuestions, "Câu hỏi điểm liệt");
         setupCategoryCard(R.id.cardConceptsRules, "Khái niệm và quy tắc");
         setupCategoryCard(R.id.cardCultureEthics, "Văn hóa và đạo đức");
@@ -75,5 +91,13 @@ public class MainActivity extends AppCompatActivity {
     private void openQuestionActivity(String category) {
         startActivity(new Intent(this, QuestionActivity.class)
             .putExtra("category", category));
+    }
+
+    private void updateLicenseType() {
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        String licenseType = prefs.getString("license_type", "A1");
+        
+        android.widget.TextView tvLicenseType = findViewById(R.id.tvLicenseType);
+        tvLicenseType.setText("Hạng " + licenseType);
     }
 }

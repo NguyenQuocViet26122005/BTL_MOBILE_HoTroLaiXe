@@ -12,7 +12,34 @@ pip install pandas openpyxl
 
 ## 🛠️ Các Tool Có Sẵn
 
-### 1. convert_excel_to_json.py
+### 1. convert_word_to_json.py
+
+Convert file Word (.docx) sang JSON format cho app.
+
+**Cách dùng:**
+
+```bash
+# Convert Word → JSON
+python tools/convert_word_to_json.py questions.docx
+
+# Convert với output tùy chỉnh
+python tools/convert_word_to_json.py questions.docx output.json
+```
+
+**Tính năng:**
+- ✅ Tự động phát hiện format Word
+- ✅ Hỗ trợ nhiều format khác nhau
+- ✅ Tự động phân loại chủ đề
+- ✅ Phát hiện câu điểm liệt
+- ✅ Thống kê theo chủ đề
+
+**Lưu ý:**
+- Cần cài: `pip install python-docx`
+- Xem chi tiết: [HUONG_DAN_CONVERT_WORD.md](../HUONG_DAN_CONVERT_WORD.md)
+
+---
+
+### 3. convert_excel_to_json.py
 
 Convert file Excel/CSV sang JSON format cho app.
 
@@ -41,9 +68,7 @@ python tools/convert_excel_to_json.py questions.xlsx output.json
 - Điểm liệt: 1 (có) hoặc 0 (không)
 - Đáp án đúng: A, B, C, hoặc D
 
----
-
-### 2. validate_questions.py
+### 4. validate_questions.py
 
 Kiểm tra và validate file JSON câu hỏi.
 

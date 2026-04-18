@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base Colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Dark Theme Colors (Active) -->
+    <color name="background_light">#0F172A</color>
+    <color name="card_light">#1E293B</color>
+    <color name="text_primary_light">#F1F5F9</color>
+    <color name="text_secondary_light">#94A3B8</color>
+    
+    <!-- Light Theme Colors (Inactive in dark mode) -->
+    <color name="background_dark">#0F172A</color>
+    <color name="card_dark">#1E293B</color>
+    <color name="text_primary_dark">#F1F5F9</color>
+    <color name="text_secondary_dark">#94A3B8</color>
+    
+    <!-- Accent Colors - Same in both themes -->
+    <color name="primary">#3B82F6</color>
+    <color name="primary_dark">#2563EB</color>
+    <color name="secondary">#8B5CF6</color>
+    <color name="accent_green">#10B981</color>
+    <color name="accent_orange">#F59E0B</color>
+    <color name="accent_red">#EF4444</color>
+    <color name="accent_blue">#06B6D4</color>
+    <color name="accent_purple">#A855F7</color>
+    <color name="accent_pink">#EC4899</color>
+    
+    <!-- Status Colors -->
+    <color name="success">#10B981</color>
+    <color name="warning">#F59E0B</color>
+    <color name="error">#EF4444</color>
+    <color name="info">#3B82F6</color>
+    
+    <!-- Category Colors -->
+    <color name="category_critical">#EF4444</color>
+    <color name="category_concept">#3B82F6</color>
+    <color name="category_culture">#8B5CF6</color>
+    <color name="category_technique">#10B981</color>
+    <color name="category_signs">#F59E0B</color>
+    <color name="category_situation">#06B6D4</color>
+    
+    <!-- Gradient Colors -->
+    <color name="gradient_start">#3B82F6</color>
+    <color name="gradient_end">#8B5CF6</color>
+    
+    <!-- Shadow & Border -->
+    <color name="shadow">#1A000000</color>
+    <color name="border_light">#374151</color>
+    <color name="border_dark">#374151</color>
+</resources>

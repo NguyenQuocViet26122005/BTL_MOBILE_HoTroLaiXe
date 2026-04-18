@@ -196,8 +196,8 @@ public class QuestionActivity extends AppCompatActivity {
 
         // Highlight đáp án đã chọn
         int color = selected.equals(correct) 
-            ? R.color.green_success 
-            : android.R.color.holo_red_dark;
+            ? R.color.success 
+            : R.color.error;
         selectedCard.setCardBackgroundColor(ContextCompat.getColor(this, color));
 
         // Nếu sai, hiển thị đáp án đúng
@@ -205,7 +205,7 @@ public class QuestionActivity extends AppCompatActivity {
             CardView correctCard = getCardByAnswer(correct);
             if (correctCard != null) {
                 correctCard.setCardBackgroundColor(
-                    ContextCompat.getColor(this, R.color.green_success)
+                    ContextCompat.getColor(this, R.color.success)
                 );
             }
         }
@@ -222,7 +222,7 @@ public class QuestionActivity extends AppCompatActivity {
     }
 
     private void resetCardColors() {
-        int defaultColor = ContextCompat.getColor(this, R.color.card_background);
+        int defaultColor = ContextCompat.getColor(this, R.color.card_light);
         for (CardView card : new CardView[]{cardOptionA, cardOptionB, cardOptionC, cardOptionD}) {
             card.setCardBackgroundColor(defaultColor);
         }
