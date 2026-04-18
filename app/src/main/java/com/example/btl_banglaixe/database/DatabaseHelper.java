@@ -13,7 +13,7 @@ import java.io.OutputStream;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "questions.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
     
     private final Context context;
 
@@ -52,6 +52,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_BOOKMARK_ID = "bookmark_id";
     public static final String COLUMN_BOOKMARK_QUESTION_ID = "question_id";
     public static final String COLUMN_BOOKMARK_TIMESTAMP = "timestamp";
+
+    // Bảng kết quả thi
+    public static final String TABLE_EXAM_RESULTS = "exam_results";
+    public static final String COLUMN_EXAM_ID = "exam_id";
+    public static final String COLUMN_LICENSE_TYPE = "license_type";
+    public static final String COLUMN_PASSED = "passed";
+    public static final String COLUMN_CORRECT_COUNT = "correct_count";
+    public static final String COLUMN_WRONG_COUNT = "wrong_count";
+    public static final String COLUMN_EXAM_TIMESTAMP = "exam_timestamp";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -92,6 +101,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             createBookmarksTable(db);
         }
         
+        if (oldVersion < 7) {
+            createExamResultsTable(db);
+        }
+        
         if (oldVersion < 6) {
             db.close();
             context.deleteDatabase(DATABASE_NAME);
@@ -103,6 +116,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
         createBookmarksTable(db);
+        createExamResultsTable(db);
     }
 
     private void createTables(SQLiteDatabase db) {
@@ -128,5 +142,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_BOOKMARK_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_BOOKMARK_QUESTION_ID + " INTEGER NOT NULL UNIQUE,"
                 + COLUMN_BOOKMARK_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP)");
+    }
+
+    private void createExamResultsTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_EXAM_RESULTS + "("
+                + COLUMN_EXAM_ID + " INTEGER NOT NULL,"
+                + COLUMN_LICENSE_TYPE + " TEXT NOT NULL,"
+                + COLUMN_PASSED + " INTEGER NOT NULL,"
+                + COLUMN_CORRECT_COUNT + " INTEGER NOT NULL,"
+                + COLUMN_WRONG_COUNT + " INTEGER NOT NULL,"
+                + COLUMN_EXAM_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "PRIMARY KEY(" + COLUMN_EXAM_ID + ", " + COLUMN_LICENSE_TYPE + "))");
     }
 }

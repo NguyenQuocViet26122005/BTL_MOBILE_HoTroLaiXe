@@ -42,7 +42,7 @@ public class ExamAdapter extends RecyclerView.Adapter<ExamAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
-        TextView tvTitle, tvDescription, tvBadge;
+        TextView tvTitle, tvDescription, tvBadge, tvStatus;
 
         ViewHolder(View v) {
             super(v);
@@ -50,13 +50,32 @@ public class ExamAdapter extends RecyclerView.Adapter<ExamAdapter.ViewHolder> {
             tvTitle = v.findViewById(R.id.tvExamTitle);
             tvDescription = v.findViewById(R.id.tvExamDescription);
             tvBadge = v.findViewById(R.id.tvBadge);
+            tvStatus = v.findViewById(R.id.tvStatus);
         }
 
         void bind(ExamActivity.ExamItem exam, OnExamClickListener listener) {
             tvTitle.setText(exam.getTitle());
             tvDescription.setText(exam.getDescription());
-            tvBadge.setVisibility(exam.isRandom() ? View.VISIBLE : View.GONE);
-            if (exam.isRandom()) tvBadge.setText("🎲 Ngẫu nhiên");
+            
+            if (exam.isRandom()) {
+                tvBadge.setVisibility(View.VISIBLE);
+                tvBadge.setText("🎲 Ngẫu nhiên");
+            } else {
+                tvBadge.setVisibility(View.GONE);
+            }
+            
+            if (exam.getStatus() != null && !exam.getStatus().isEmpty()) {
+                tvStatus.setVisibility(View.VISIBLE);
+                tvStatus.setText(exam.getStatus());
+                if (exam.getStatus().contains("Đã đỗ")) {
+                    tvStatus.setTextColor(itemView.getContext().getResources().getColor(com.example.btl_banglaixe.R.color.accent_green));
+                } else {
+                    tvStatus.setTextColor(itemView.getContext().getResources().getColor(com.example.btl_banglaixe.R.color.error));
+                }
+            } else {
+                tvStatus.setVisibility(View.GONE);
+            }
+            
             cardView.setOnClickListener(v -> listener.onExamClick(exam));
         }
     }

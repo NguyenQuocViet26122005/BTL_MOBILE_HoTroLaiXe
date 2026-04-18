@@ -15,6 +15,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
 import com.example.btl_banglaixe.database.QuestionDAO;
+import com.example.btl_banglaixe.database.ExamResultDAO;
 import com.example.btl_banglaixe.models.Question;
 import com.example.btl_banglaixe.utils.ExamGenerator;
 
@@ -35,6 +36,7 @@ public class ExamQuestionActivity extends AppCompatActivity {
     private List<Question> examQuestions;
     private List<String> userAnswers;
     private int currentQuestionIndex = 0;
+    private int examId;
     private boolean showAnswerImmediately;
     private CountDownTimer timer;
     private long timeLeftInMillis = 19 * 60 * 1000;
@@ -93,6 +95,7 @@ public class ExamQuestionActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
         licenseType = prefs.getString("license_type", "A1");
         maxWrongAllowed = licenseType.equals("A") ? 2 : 4;
+        examId = getIntent().getIntExtra("exam_id", 0);
         showAnswerImmediately = getIntent().getBooleanExtra("show_answer_immediately", false);
     }
 
@@ -293,9 +296,8 @@ public class ExamQuestionActivity extends AppCompatActivity {
         if (unansweredCount > 0) {
             new AlertDialog.Builder(this)
                 .setTitle("Chưa hoàn thành")
-                .setMessage("Bạn còn " + unansweredCount + " câu chưa trả lời.\n\nBạn có chắc muốn nộp bài?")
-                .setPositiveButton("Nộp bài", (d, w) -> calculateResult())
-                .setNegativeButton("Tiếp tục làm", null)
+                .setMessage("Bạn phải làm hết 25 câu mới được nộp bài!\n\nCòn " + unansweredCount + " câu chưa trả lời.")
+                .setPositiveButton("OK", null)
                 .show();
         } else {
             calculateResult();
@@ -315,17 +317,22 @@ public class ExamQuestionActivity extends AppCompatActivity {
             
             if (userAnswer.equals(q.getCorrectAnswer())) {
                 correctCount++;
-            } else if (!userAnswer.isEmpty()) {
+            } else {
                 wrongCount++;
                 if (q.isCritical()) criticalWrongCount++;
             }
         }
         
-        boolean passed = criticalWrongCount == 0 && wrongCount <= maxWrongAllowed;
+        int requiredCorrect = licenseType.equals("A") ? 23 : 21;
+        boolean passed = criticalWrongCount == 0 && correctCount >= requiredCorrect;
         showResultDialog(passed, correctCount, wrongCount, criticalWrongCount);
     }
 
     private void showResultDialog(boolean passed, int correct, int wrong, int criticalWrong) {
+        ExamResultDAO dao = new ExamResultDAO(this);
+        dao.saveExamResult(examId, licenseType, passed, correct, wrong);
+        dao.close();
+        
         String title = passed ? "🎉 Đậu" : "😢 Rớt";
         String message = "Kết quả thi của bạn:\n\n" +
                 "✅ Đúng: " + correct + "/25 câu\n" +
@@ -333,8 +340,9 @@ public class ExamQuestionActivity extends AppCompatActivity {
         
         if (criticalWrong > 0) {
             message += "⚠️ Sai câu điểm liệt: " + criticalWrong + " câu\n\nLý do: Sai câu điểm liệt";
-        } else if (wrong > maxWrongAllowed) {
-            message += "\nLý do: Sai quá " + maxWrongAllowed + " câu (Hạng " + licenseType + ")";
+        } else if (!passed) {
+            int required = licenseType.equals("A") ? 23 : 21;
+            message += "\nLý do: Cần đúng tối thiểu " + required + "/25 câu (Hạng " + licenseType + ")";
         } else {
             message += "\n🎊 Chúc mừng bạn đã đạt!";
         }

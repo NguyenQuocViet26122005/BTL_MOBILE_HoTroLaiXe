@@ -37,6 +37,12 @@ public class ExamActivity extends AppCompatActivity {
         loadExams();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadExams();
+    }
+
     private void setupViews() {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         recyclerView = findViewById(R.id.recyclerExams);
@@ -44,11 +50,22 @@ public class ExamActivity extends AppCompatActivity {
     }
 
     private void loadExams() {
+        String licenseType = prefs.getString("license_type", "A1");
         List<ExamItem> exams = new ArrayList<>();
         exams.add(new ExamItem(0, "Đề ngẫu nhiên", "25 câu hỏi được chọn ngẫu nhiên", true));
         for (int i = 1; i <= 15; i++) {
             exams.add(new ExamItem(i, "Đề số " + i, "25 câu hỏi theo cấu trúc thi thật", false));
         }
+        
+        com.example.btl_banglaixe.database.ExamResultDAO dao = new com.example.btl_banglaixe.database.ExamResultDAO(this);
+        for (ExamItem exam : exams) {
+            com.example.btl_banglaixe.database.ExamResultDAO.ExamResult result = dao.getExamResult(exam.getId(), licenseType);
+            if (result != null) {
+                exam.setStatus(result.passed ? "✅ Đã đỗ" : "❌ Trượt");
+            }
+        }
+        dao.close();
+        
         adapter = new ExamAdapter(exams, this::startExam);
         recyclerView.setAdapter(adapter);
     }
@@ -74,17 +91,21 @@ public class ExamActivity extends AppCompatActivity {
         private String title;
         private String description;
         private boolean isRandom;
+        private String status;
 
         public ExamItem(int id, String title, String description, boolean isRandom) {
             this.id = id;
             this.title = title;
             this.description = description;
             this.isRandom = isRandom;
+            this.status = "";
         }
 
         public int getId() { return id; }
         public String getTitle() { return title; }
         public String getDescription() { return description; }
         public boolean isRandom() { return isRandom; }
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
     }
 }
