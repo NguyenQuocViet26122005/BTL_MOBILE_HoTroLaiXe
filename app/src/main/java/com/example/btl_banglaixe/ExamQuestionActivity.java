@@ -26,8 +26,7 @@ public class ExamQuestionActivity extends AppCompatActivity {
 
     private TextView tvQuestionNumber, tvQuestion, tvOptionA, tvOptionB, tvOptionC, tvOptionD;
     private TextView tvTimer, tvWrongCount, tvExplanation;
-    private CardView cardOptionA, cardOptionB, cardOptionC, cardOptionD;
-    private CardView criticalBadge, imageCard, explanationCard;
+    private CardView cardOptionA, cardOptionB, cardOptionC, cardOptionD, criticalBadge, imageCard, explanationCard;
     private ImageView ivQuestion, btnBack;
     private Button btnPrevious, btnNext, btnSubmit;
     private ProgressBar progressBar;
@@ -38,11 +37,11 @@ public class ExamQuestionActivity extends AppCompatActivity {
     private int currentQuestionIndex = 0;
     private boolean showAnswerImmediately;
     private CountDownTimer timer;
-    private long timeLeftInMillis = 19 * 60 * 1000; // 19 phút
+    private long timeLeftInMillis = 19 * 60 * 1000;
     
     private int wrongCount = 0;
     private int criticalWrongCount = 0;
-    private int maxWrongAllowed = 4; // Mặc định A1
+    private int maxWrongAllowed = 4;
     private String licenseType;
 
     @Override
@@ -50,17 +49,12 @@ public class ExamQuestionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exam_question);
 
-        // Xử lý system bars
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.main),
-            (v, insets) -> {
-                androidx.core.graphics.Insets systemBars = insets.getInsets(
-                    androidx.core.view.WindowInsetsCompat.Type.systemBars()
-                );
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-                return insets;
-            }
-        );
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            androidx.core.graphics.Insets systemBars = insets.getInsets(
+                androidx.core.view.WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         initViews();
         loadExamSettings();
@@ -80,7 +74,6 @@ public class ExamQuestionActivity extends AppCompatActivity {
         tvTimer = findViewById(R.id.tvTimer);
         tvWrongCount = findViewById(R.id.tvWrongCount);
         tvExplanation = findViewById(R.id.tvExplanation);
-
         cardOptionA = findViewById(R.id.cardOptionA);
         cardOptionB = findViewById(R.id.cardOptionB);
         cardOptionC = findViewById(R.id.cardOptionC);
@@ -88,7 +81,6 @@ public class ExamQuestionActivity extends AppCompatActivity {
         criticalBadge = findViewById(R.id.criticalBadge);
         imageCard = findViewById(R.id.imageCard);
         explanationCard = findViewById(R.id.explanationCard);
-
         ivQuestion = findViewById(R.id.ivQuestion);
         btnBack = findViewById(R.id.btnBack);
         btnPrevious = findViewById(R.id.btnPrevious);
@@ -100,60 +92,48 @@ public class ExamQuestionActivity extends AppCompatActivity {
     private void loadExamSettings() {
         SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
         licenseType = prefs.getString("license_type", "A1");
-        
-        // Thiết lập số câu sai tối đa
         maxWrongAllowed = licenseType.equals("A") ? 2 : 4;
-        
         showAnswerImmediately = getIntent().getBooleanExtra("show_answer_immediately", false);
     }
 
     private void loadExamQuestions() {
         questionDAO = new QuestionDAO(this);
-        int examId = getIntent().getIntExtra("exam_id", 0);
+        examQuestions = ExamGenerator.generateExam(questionDAO, getIntent().getIntExtra("exam_id", 0));
         
-        // Tạo đề thi
-        examQuestions = ExamGenerator.generateExam(questionDAO, examId);
-        
-        // Kiểm tra nếu không có câu hỏi
         if (examQuestions == null || examQuestions.isEmpty()) {
             new AlertDialog.Builder(this)
                 .setTitle("Lỗi")
                 .setMessage("Không thể tạo đề thi. Vui lòng thử lại.")
-                .setPositiveButton("OK", (dialog, which) -> finish())
+                .setPositiveButton("OK", (d, w) -> finish())
                 .setCancelable(false)
                 .show();
             return;
         }
         
         userAnswers = new ArrayList<>();
-        for (int i = 0; i < examQuestions.size(); i++) {
-            userAnswers.add("");
-        }
+        for (int i = 0; i < examQuestions.size(); i++) userAnswers.add("");
     }
 
     private void setupListeners() {
         btnBack.setOnClickListener(v -> showExitConfirmation());
-        
         cardOptionA.setOnClickListener(v -> selectAnswer("A"));
         cardOptionB.setOnClickListener(v -> selectAnswer("B"));
         cardOptionC.setOnClickListener(v -> selectAnswer("C"));
         cardOptionD.setOnClickListener(v -> selectAnswer("D"));
-
         btnPrevious.setOnClickListener(v -> navigateQuestion(-1));
         btnNext.setOnClickListener(v -> navigateQuestion(1));
         btnSubmit.setOnClickListener(v -> submitExam());
     }
 
     private void startTimer() {
-        if (timer != null) {
-            timer.cancel();
-        }
-        
+        if (timer != null) timer.cancel();
         timer = new CountDownTimer(timeLeftInMillis, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 timeLeftInMillis = millisUntilFinished;
-                updateTimer();
+                int minutes = (int) (timeLeftInMillis / 1000) / 60;
+                int seconds = (int) (timeLeftInMillis / 1000) % 60;
+                tvTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds));
             }
 
             @Override
@@ -163,65 +143,44 @@ public class ExamQuestionActivity extends AppCompatActivity {
         }.start();
     }
 
-    private void updateTimer() {
-        int minutes = (int) (timeLeftInMillis / 1000) / 60;
-        int seconds = (int) (timeLeftInMillis / 1000) % 60;
-        tvTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds));
-    }
-
     private void displayQuestion() {
         if (examQuestions == null || examQuestions.isEmpty()) return;
 
-        Question question = examQuestions.get(currentQuestionIndex);
+        Question q = examQuestions.get(currentQuestionIndex);
 
-        // Cập nhật số câu hỏi và progress
         tvQuestionNumber.setText("Câu " + (currentQuestionIndex + 1) + "/25");
         progressBar.setMax(25);
         progressBar.setProgress(currentQuestionIndex + 1);
 
-        // Hiển thị câu hỏi và badge điểm liệt
-        tvQuestion.setText(question.getQuestionText());
-        criticalBadge.setVisibility(question.isCritical() ? View.VISIBLE : View.GONE);
+        tvQuestion.setText(q.getQuestionText());
+        criticalBadge.setVisibility(q.isCritical() ? View.VISIBLE : View.GONE);
 
-        // Hiển thị ảnh nếu có
-        if (question.getImagePath() != null && !question.getImagePath().isEmpty()) {
-            try {
-                int resId = getResources().getIdentifier(
-                    question.getImagePath(), 
-                    "drawable", 
-                    getPackageName()
-                );
-                
-                if (resId != 0) {
-                    ivQuestion.setImageResource(resId);
-                    imageCard.setVisibility(View.VISIBLE);
-                } else {
-                    imageCard.setVisibility(View.GONE);
-                }
-            } catch (Exception e) {
+        if (q.getImagePath() != null && !q.getImagePath().isEmpty()) {
+            int resId = getResources().getIdentifier(q.getImagePath(), "drawable", getPackageName());
+            if (resId != 0) {
+                ivQuestion.setImageResource(resId);
+                imageCard.setVisibility(View.VISIBLE);
+            } else {
                 imageCard.setVisibility(View.GONE);
             }
         } else {
             imageCard.setVisibility(View.GONE);
         }
 
-        // Hiển thị các đáp án
-        tvOptionA.setText(question.getOptionA());
-        tvOptionB.setText(question.getOptionB());
-        setOptionVisibility(cardOptionC, tvOptionC, question.getOptionC());
-        setOptionVisibility(cardOptionD, tvOptionD, question.getOptionD());
+        tvOptionA.setText(q.getOptionA());
+        tvOptionB.setText(q.getOptionB());
+        setOptionVisibility(cardOptionC, tvOptionC, q.getOptionC());
+        setOptionVisibility(cardOptionD, tvOptionD, q.getOptionD());
 
-        // Hiển thị giải thích
-        if (question.getExplanation() != null && !question.getExplanation().isEmpty()) {
-            tvExplanation.setText(question.getExplanation());
+        if (q.getExplanation() != null && !q.getExplanation().isEmpty()) {
+            tvExplanation.setText(q.getExplanation());
         }
 
-        // Khôi phục đáp án đã chọn
         String previousAnswer = userAnswers.get(currentQuestionIndex);
         if (!previousAnswer.isEmpty()) {
             highlightSelectedAnswer(previousAnswer);
             if (showAnswerImmediately) {
-                highlightCorrectAnswer(question.getCorrectAnswer(), previousAnswer);
+                highlightCorrectAnswer(q.getCorrectAnswer(), previousAnswer);
                 explanationCard.setVisibility(View.VISIBLE);
             }
         } else {
@@ -229,14 +188,13 @@ public class ExamQuestionActivity extends AppCompatActivity {
             explanationCard.setVisibility(View.GONE);
         }
 
-        // Cập nhật nút Previous/Next
         btnPrevious.setEnabled(currentQuestionIndex > 0);
     }
 
-    private void setOptionVisibility(CardView card, TextView textView, String option) {
+    private void setOptionVisibility(CardView card, TextView tv, String option) {
         if (option != null && !option.isEmpty()) {
             card.setVisibility(View.VISIBLE);
-            textView.setText(option);
+            tv.setText(option);
         } else {
             card.setVisibility(View.GONE);
         }
@@ -244,40 +202,25 @@ public class ExamQuestionActivity extends AppCompatActivity {
 
     private void selectAnswer(String answer) {
         String previousAnswer = userAnswers.get(currentQuestionIndex);
-        
-        // Nếu đã chọn rồi và không cho phép đổi (chế độ hiện đáp án ngay)
-        if (!previousAnswer.isEmpty() && showAnswerImmediately) {
-            return;
-        }
+        if (!previousAnswer.isEmpty() && showAnswerImmediately) return;
 
-        // Cập nhật số câu sai nếu thay đổi đáp án
-        Question question = examQuestions.get(currentQuestionIndex);
-        String correctAnswer = question.getCorrectAnswer();
+        Question q = examQuestions.get(currentQuestionIndex);
+        String correctAnswer = q.getCorrectAnswer();
         
-        if (!previousAnswer.isEmpty()) {
-            // Xóa đếm câu sai cũ
-            if (!previousAnswer.equals(correctAnswer)) {
-                wrongCount--;
-                if (question.isCritical()) {
-                    criticalWrongCount--;
-                }
-            }
+        if (!previousAnswer.isEmpty() && !previousAnswer.equals(correctAnswer)) {
+            wrongCount--;
+            if (q.isCritical()) criticalWrongCount--;
         }
         
-        // Lưu đáp án mới
         userAnswers.set(currentQuestionIndex, answer);
         
-        // Đếm câu sai mới
         if (!answer.equals(correctAnswer)) {
             wrongCount++;
-            if (question.isCritical()) {
-                criticalWrongCount++;
-            }
+            if (q.isCritical()) criticalWrongCount++;
         }
         
         updateWrongCount();
 
-        // Hiển thị kết quả
         if (showAnswerImmediately) {
             highlightCorrectAnswer(correctAnswer, answer);
             explanationCard.setVisibility(View.VISIBLE);
@@ -288,17 +231,14 @@ public class ExamQuestionActivity extends AppCompatActivity {
 
     private void highlightSelectedAnswer(String answer) {
         resetCardColors();
-        CardView selectedCard = getCardByAnswer(answer);
-        if (selectedCard != null) {
-            selectedCard.setCardBackgroundColor(
-                ContextCompat.getColor(this, R.color.primary)
-            );
+        CardView card = getCardByAnswer(answer);
+        if (card != null) {
+            card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.primary));
         }
     }
 
     private void highlightCorrectAnswer(String correct, String selected) {
         resetCardColors();
-
         CardView selectedCard = getCardByAnswer(selected);
         if (selectedCard != null) {
             int color = selected.equals(correct) ? R.color.success : R.color.error;
@@ -308,9 +248,7 @@ public class ExamQuestionActivity extends AppCompatActivity {
         if (!selected.equals(correct)) {
             CardView correctCard = getCardByAnswer(correct);
             if (correctCard != null) {
-                correctCard.setCardBackgroundColor(
-                    ContextCompat.getColor(this, R.color.success)
-                );
+                correctCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.success));
             }
         }
     }
@@ -326,50 +264,37 @@ public class ExamQuestionActivity extends AppCompatActivity {
     }
 
     private void resetCardColors() {
-        int defaultColor = ContextCompat.getColor(this, R.color.card_light);
+        int color = ContextCompat.getColor(this, R.color.card_light);
         for (CardView card : new CardView[]{cardOptionA, cardOptionB, cardOptionC, cardOptionD}) {
-            card.setCardBackgroundColor(defaultColor);
+            card.setCardBackgroundColor(color);
         }
     }
 
     private void updateWrongCount() {
         tvWrongCount.setText("Sai: " + wrongCount + "/" + maxWrongAllowed);
-        
-        // Đổi màu cảnh báo
-        if (criticalWrongCount > 0) {
-            tvWrongCount.setTextColor(ContextCompat.getColor(this, R.color.error));
-        } else if (wrongCount >= maxWrongAllowed - 1) {
-            tvWrongCount.setTextColor(ContextCompat.getColor(this, R.color.accent_orange));
-        } else {
-            tvWrongCount.setTextColor(ContextCompat.getColor(this, R.color.text_primary_light));
-        }
+        int color = criticalWrongCount > 0 ? R.color.error : 
+                    wrongCount >= maxWrongAllowed - 1 ? R.color.accent_orange : R.color.text_primary_light;
+        tvWrongCount.setTextColor(ContextCompat.getColor(this, color));
     }
 
     private void navigateQuestion(int direction) {
         int newIndex = currentQuestionIndex + direction;
-        
-        if (newIndex < 0 || newIndex >= examQuestions.size()) {
-            return;
-        }
-        
+        if (newIndex < 0 || newIndex >= examQuestions.size()) return;
         currentQuestionIndex = newIndex;
         displayQuestion();
     }
 
     private void submitExam() {
-        // Kiểm tra còn câu chưa trả lời
         int unansweredCount = 0;
         for (String answer : userAnswers) {
-            if (answer.isEmpty()) {
-                unansweredCount++;
-            }
+            if (answer.isEmpty()) unansweredCount++;
         }
         
         if (unansweredCount > 0) {
             new AlertDialog.Builder(this)
                 .setTitle("Chưa hoàn thành")
                 .setMessage("Bạn còn " + unansweredCount + " câu chưa trả lời.\n\nBạn có chắc muốn nộp bài?")
-                .setPositiveButton("Nộp bài", (dialog, which) -> calculateResult())
+                .setPositiveButton("Nộp bài", (d, w) -> calculateResult())
                 .setNegativeButton("Tiếp tục làm", null)
                 .show();
         } else {
@@ -378,11 +303,8 @@ public class ExamQuestionActivity extends AppCompatActivity {
     }
 
     private void calculateResult() {
-        if (timer != null) {
-            timer.cancel();
-        }
+        if (timer != null) timer.cancel();
         
-        // Tính điểm
         int correctCount = 0;
         wrongCount = 0;
         criticalWrongCount = 0;
@@ -395,15 +317,11 @@ public class ExamQuestionActivity extends AppCompatActivity {
                 correctCount++;
             } else if (!userAnswer.isEmpty()) {
                 wrongCount++;
-                if (q.isCritical()) {
-                    criticalWrongCount++;
-                }
+                if (q.isCritical()) criticalWrongCount++;
             }
         }
         
-        // Kiểm tra đậu/rớt
         boolean passed = criticalWrongCount == 0 && wrongCount <= maxWrongAllowed;
-        
         showResultDialog(passed, correctCount, wrongCount, criticalWrongCount);
     }
 
@@ -414,8 +332,7 @@ public class ExamQuestionActivity extends AppCompatActivity {
                 "❌ Sai: " + wrong + "/25 câu\n";
         
         if (criticalWrong > 0) {
-            message += "⚠️ Sai câu điểm liệt: " + criticalWrong + " câu\n\n";
-            message += "Lý do: Sai câu điểm liệt";
+            message += "⚠️ Sai câu điểm liệt: " + criticalWrong + " câu\n\nLý do: Sai câu điểm liệt";
         } else if (wrong > maxWrongAllowed) {
             message += "\nLý do: Sai quá " + maxWrongAllowed + " câu (Hạng " + licenseType + ")";
         } else {
@@ -425,11 +342,8 @@ public class ExamQuestionActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)
-            .setPositiveButton("Xem đáp án", (dialog, which) -> {
-                // TODO: Hiển thị màn hình xem lại đáp án
-                finish();
-            })
-            .setNegativeButton("Về trang chủ", (dialog, which) -> finish())
+            .setPositiveButton("Xem đáp án", (d, w) -> finish())
+            .setNegativeButton("Về trang chủ", (d, w) -> finish())
             .setCancelable(false)
             .show();
     }
@@ -438,7 +352,7 @@ public class ExamQuestionActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
             .setTitle("Thoát bài thi")
             .setMessage("Bạn có chắc muốn thoát?\n\nKết quả sẽ không được lưu.")
-            .setPositiveButton("Thoát", (dialog, which) -> finish())
+            .setPositiveButton("Thoát", (d, w) -> finish())
             .setNegativeButton("Ở lại", null)
             .show();
     }
@@ -446,11 +360,7 @@ public class ExamQuestionActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (timer != null) {
-            timer.cancel();
-        }
-        if (questionDAO != null) {
-            questionDAO.close();
-        }
+        if (timer != null) timer.cancel();
+        if (questionDAO != null) questionDAO.close();
     }
 }

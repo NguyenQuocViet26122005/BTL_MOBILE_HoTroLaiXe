@@ -15,7 +15,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header với gradient -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,7 +71,6 @@
                         app:tint="@color/white" />
                 </LinearLayout>
 
-                <!-- Progress -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -130,7 +128,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Quick Actions -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -146,7 +143,6 @@
             android:layout_marginBottom="24dp"
             android:orientation="horizontal">
 
-            <!-- Học tập -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardStudy"
                 android:layout_width="0dp"
@@ -181,7 +177,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Biển báo -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardSigns"
                 android:layout_width="0dp"
@@ -223,7 +218,6 @@
             android:layout_marginBottom="24dp"
             android:orientation="horizontal">
 
-            <!-- Thi thử -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardExam"
                 android:layout_width="0dp"
@@ -258,7 +252,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Đánh dấu -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardBookmark"
                 android:layout_width="0dp"
@@ -294,7 +287,6 @@
             </androidx.cardview.widget.CardView>
         </LinearLayout>
 
-        <!-- Danh mục học tập -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -304,7 +296,6 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- Câu hỏi điểm liệt -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardCriticalQuestions"
             android:layout_width="match_parent"
@@ -359,7 +350,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Khái niệm và quy tắc -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardConceptsRules"
             android:layout_width="match_parent"
@@ -414,7 +404,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Văn hóa và đạo đức -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardCultureEthics"
             android:layout_width="match_parent"
@@ -469,7 +458,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Kỹ thuật lái xe -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardDrivingTechniques"
             android:layout_width="match_parent"
@@ -524,7 +512,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Biển báo đường bộ -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardTrafficSigns"
             android:layout_width="match_parent"
@@ -579,7 +566,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Sa hình -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardSituations"
             android:layout_width="match_parent"
@@ -633,6 +619,5 @@
                     android:textSize="24sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-
     </LinearLayout>
 </ScrollView>

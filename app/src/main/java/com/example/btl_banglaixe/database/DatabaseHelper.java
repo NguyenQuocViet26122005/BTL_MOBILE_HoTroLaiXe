@@ -13,7 +13,7 @@ import java.io.OutputStream;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "questions.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     
     private final Context context;
 
@@ -60,29 +60,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void copyDatabase() {
+        File dbFile = context.getDatabasePath(DATABASE_NAME);
+        if (dbFile.exists()) return;
+        
         try {
-            String dbPath = context.getDatabasePath(DATABASE_NAME).getPath();
-            File dbFile = new File(dbPath);
+            dbFile.getParentFile().mkdirs();
+            InputStream input = context.getAssets().open("databases/" + DATABASE_NAME);
+            OutputStream output = new FileOutputStream(dbFile);
             
-            if (!dbFile.exists()) {
-                File dbDir = dbFile.getParentFile();
-                if (dbDir != null && !dbDir.exists()) {
-                    dbDir.mkdirs();
-                }
-                
-                InputStream input = context.getAssets().open("databases/" + DATABASE_NAME);
-                OutputStream output = new FileOutputStream(dbPath);
-                
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = input.read(buffer)) > 0) {
-                    output.write(buffer, 0, length);
-                }
-                
-                output.flush();
-                output.close();
-                input.close();
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = input.read(buffer)) > 0) {
+                output.write(buffer, 0, length);
             }
+            
+            output.close();
+            input.close();
         } catch (IOException e) {
             throw new RuntimeException("Error copying database", e);
         }
@@ -99,24 +92,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             createBookmarksTable(db);
         }
         
-        // Nếu upgrade từ version cũ, xóa và copy lại database
-        if (oldVersion < 5) {
-            // Đóng database
-            if (db != null && db.isOpen()) {
-                db.close();
-            }
-            
-            // Xóa database cũ
-            String dbPath = context.getDatabasePath(DATABASE_NAME).getPath();
-            File dbFile = new File(dbPath);
-            if (dbFile.exists()) {
-                boolean deleted = dbFile.delete();
-                android.util.Log.d("DatabaseHelper", "Old database deleted: " + deleted);
-            }
-            
-            // Copy database mới từ assets
+        if (oldVersion < 6) {
+            db.close();
+            context.deleteDatabase(DATABASE_NAME);
             copyDatabase();
-            android.util.Log.d("DatabaseHelper", "New database copied from assets");
         }
     }
 
@@ -127,27 +106,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void createTables(SQLiteDatabase db) {
-        // Tạo bảng lịch sử
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_HISTORY + "("
                 + COLUMN_HISTORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_QUESTION_ID + " INTEGER NOT NULL,"
                 + COLUMN_USER_ANSWER + " TEXT,"
                 + COLUMN_IS_CORRECT + " INTEGER,"
-                + COLUMN_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(" + COLUMN_QUESTION_ID + ") REFERENCES " 
-                + TABLE_QUESTIONS + "(" + COLUMN_ID + ")"
-                + ")");
+                + COLUMN_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP)");
 
-        // Tạo bảng tiến độ
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_PROGRESS + "("
                 + COLUMN_PROGRESS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_CATEGORY_NAME + " TEXT NOT NULL UNIQUE,"
                 + COLUMN_TOTAL_QUESTIONS + " INTEGER DEFAULT 0,"
                 + COLUMN_COMPLETED_QUESTIONS + " INTEGER DEFAULT 0,"
-                + COLUMN_CORRECT_ANSWERS + " INTEGER DEFAULT 0"
-                + ")");
+                + COLUMN_CORRECT_ANSWERS + " INTEGER DEFAULT 0)");
 
-        // Tạo bảng đánh dấu
         createBookmarksTable(db);
     }
 
@@ -155,9 +127,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_BOOKMARKS + "("
                 + COLUMN_BOOKMARK_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_BOOKMARK_QUESTION_ID + " INTEGER NOT NULL UNIQUE,"
-                + COLUMN_BOOKMARK_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(" + COLUMN_BOOKMARK_QUESTION_ID + ") REFERENCES " 
-                + TABLE_QUESTIONS + "(" + COLUMN_ID + ")"
-                + ")");
+                + COLUMN_BOOKMARK_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP)");
     }
 }

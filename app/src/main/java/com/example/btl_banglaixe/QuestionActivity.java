@@ -67,7 +67,6 @@ public class QuestionActivity extends AppCompatActivity {
         tvOptionC = findViewById(R.id.tvOptionC);
         tvOptionD = findViewById(R.id.tvOptionD);
         tvExplanation = findViewById(R.id.tvExplanation);
-
         cardOptionA = findViewById(R.id.cardOptionA);
         cardOptionB = findViewById(R.id.cardOptionB);
         cardOptionC = findViewById(R.id.cardOptionC);
@@ -75,7 +74,6 @@ public class QuestionActivity extends AppCompatActivity {
         criticalBadge = findViewById(R.id.criticalBadge);
         imageCard = findViewById(R.id.imageCard);
         explanationCard = findViewById(R.id.explanationCard);
-
         ivQuestion = findViewById(R.id.ivQuestion);
         btnBack = findViewById(R.id.btnBack);
         btnBookmark = findViewById(R.id.btnBookmark);
@@ -89,20 +87,15 @@ public class QuestionActivity extends AppCompatActivity {
         bookmarkDAO = new BookmarkDAO(this);
         historyDAO = new HistoryDAO(this);
         
-        // Lấy category từ Intent
         String category = getIntent().getStringExtra("category");
         
         if (category == null) {
-            // Không có category = Học tập tất cả 250 câu
             questions = questionDAO.getAllQuestions();
         } else if (category.equals("critical")) {
-            // Câu điểm liệt
             questions = questionDAO.getCriticalQuestions();
         } else if (category.equals("bookmarked")) {
-            // Câu đã đánh dấu
             questions = bookmarkDAO.getBookmarkedQuestions();
         } else {
-            // Category cụ thể
             questions = questionDAO.getQuestionsByCategory(category);
         }
 
@@ -114,47 +107,30 @@ public class QuestionActivity extends AppCompatActivity {
 
     private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());
-        
         btnBookmark.setOnClickListener(v -> toggleBookmark());
-
-        // Setup các option cards
         cardOptionA.setOnClickListener(v -> selectAnswer("A"));
         cardOptionB.setOnClickListener(v -> selectAnswer("B"));
         cardOptionC.setOnClickListener(v -> selectAnswer("C"));
         cardOptionD.setOnClickListener(v -> selectAnswer("D"));
-
         btnPrevious.setOnClickListener(v -> navigateQuestion(-1));
         btnNext.setOnClickListener(v -> navigateQuestion(1));
     }
 
     private void toggleBookmark() {
-        Question currentQuestion = questions.get(currentQuestionIndex);
-        int questionId = currentQuestion.getId();
-        
+        Question q = questions.get(currentQuestionIndex);
         if (isBookmarked) {
-            // Xóa bookmark
-            bookmarkDAO.removeBookmark(questionId);
-            isBookmarked = false;
+            bookmarkDAO.removeBookmark(q.getId());
             btnBookmark.setImageResource(R.drawable.ic_star_outline);
-            Toast.makeText(this, "Đã bỏ đánh dấu", Toast.LENGTH_SHORT).show();
         } else {
-            // Thêm bookmark
-            bookmarkDAO.addBookmark(questionId);
-            isBookmarked = true;
+            bookmarkDAO.addBookmark(q.getId());
             btnBookmark.setImageResource(R.drawable.ic_star_filled);
-            Toast.makeText(this, "Đã đánh dấu câu hỏi", Toast.LENGTH_SHORT).show();
         }
+        isBookmarked = !isBookmarked;
     }
 
     private void navigateQuestion(int direction) {
         int newIndex = currentQuestionIndex + direction;
-        
-        if (newIndex < 0 || newIndex >= questions.size()) {
-            if (direction > 0) {
-                Toast.makeText(this, "Đã hết câu hỏi!", Toast.LENGTH_SHORT).show();
-            }
-            return;
-        }
+        if (newIndex < 0 || newIndex >= questions.size()) return;
         
         currentQuestionIndex = newIndex;
         resetQuestion();
@@ -164,107 +140,75 @@ public class QuestionActivity extends AppCompatActivity {
     private void displayQuestion() {
         if (questions == null || questions.isEmpty()) return;
 
-        Question question = questions.get(currentQuestionIndex);
+        Question q = questions.get(currentQuestionIndex);
 
-        // Cập nhật số câu hỏi và progress
         tvQuestionNumber.setText("Câu " + (currentQuestionIndex + 1) + "/" + questions.size());
         progressBar.setMax(questions.size());
         progressBar.setProgress(currentQuestionIndex + 1);
 
-        // Hiển thị câu hỏi và badge điểm liệt
-        tvQuestion.setText(question.getQuestionText());
-        criticalBadge.setVisibility(question.isCritical() ? View.VISIBLE : View.GONE);
+        tvQuestion.setText(q.getQuestionText());
+        criticalBadge.setVisibility(q.isCritical() ? View.VISIBLE : View.GONE);
 
-        // Kiểm tra và cập nhật trạng thái bookmark
-        isBookmarked = bookmarkDAO.isBookmarked(question.getId());
-        btnBookmark.setImageResource(isBookmarked ? 
-            R.drawable.ic_star_filled : R.drawable.ic_star_outline);
+        isBookmarked = bookmarkDAO.isBookmarked(q.getId());
+        btnBookmark.setImageResource(isBookmarked ? R.drawable.ic_star_filled : R.drawable.ic_star_outline);
 
-        // Hiển thị ảnh nếu có
-        if (question.getImagePath() != null && !question.getImagePath().isEmpty()) {
-            try {
-                // Load ảnh từ drawable
-                int resId = getResources().getIdentifier(
-                    question.getImagePath(), 
-                    "drawable", 
-                    getPackageName()
-                );
-                
-                if (resId != 0) {
-                    ivQuestion.setImageResource(resId);
-                    imageCard.setVisibility(View.VISIBLE);
-                } else {
-                    imageCard.setVisibility(View.GONE);
-                }
-            } catch (Exception e) {
+        if (q.getImagePath() != null && !q.getImagePath().isEmpty()) {
+            int resId = getResources().getIdentifier(q.getImagePath(), "drawable", getPackageName());
+            if (resId != 0) {
+                ivQuestion.setImageResource(resId);
+                imageCard.setVisibility(View.VISIBLE);
+            } else {
                 imageCard.setVisibility(View.GONE);
             }
         } else {
             imageCard.setVisibility(View.GONE);
         }
 
-        // Hiển thị các đáp án
-        tvOptionA.setText(question.getOptionA());
-        tvOptionB.setText(question.getOptionB());
-        setOptionVisibility(cardOptionC, tvOptionC, question.getOptionC());
-        setOptionVisibility(cardOptionD, tvOptionD, question.getOptionD());
+        tvOptionA.setText(q.getOptionA());
+        tvOptionB.setText(q.getOptionB());
+        setOptionVisibility(cardOptionC, tvOptionC, q.getOptionC());
+        setOptionVisibility(cardOptionD, tvOptionD, q.getOptionD());
 
-        // Hiển thị giải thích
-        if (question.getExplanation() != null && !question.getExplanation().isEmpty()) {
-            tvExplanation.setText(question.getExplanation());
+        if (q.getExplanation() != null && !q.getExplanation().isEmpty()) {
+            tvExplanation.setText(q.getExplanation());
         }
 
-        // Cập nhật nút Previous
         btnPrevious.setEnabled(currentQuestionIndex > 0);
     }
 
-    private void setOptionVisibility(CardView card, TextView textView, String option) {
+    private void setOptionVisibility(CardView card, TextView tv, String option) {
         if (option != null && !option.isEmpty()) {
             card.setVisibility(View.VISIBLE);
-            textView.setText(option);
+            tv.setText(option);
         } else {
             card.setVisibility(View.GONE);
         }
     }
 
     private void selectAnswer(String answer) {
-        if (isAnswered) return; // Không cho chọn lại
+        if (isAnswered) return;
 
         selectedAnswer = answer;
         isAnswered = true;
 
-        Question question = questions.get(currentQuestionIndex);
-        String correctAnswer = question.getCorrectAnswer();
-
-        // Lưu lịch sử trả lời
-        historyDAO.saveAnswer(question.getId(), answer, correctAnswer);
-
-        // Hiển thị kết quả
-        highlightAnswer(answer, correctAnswer);
-
-        // Hiển thị giải thích
+        Question q = questions.get(currentQuestionIndex);
+        historyDAO.saveAnswer(q.getId(), answer, q.getCorrectAnswer());
+        highlightAnswer(answer, q.getCorrectAnswer());
         explanationCard.setVisibility(View.VISIBLE);
     }
 
     private void highlightAnswer(String selected, String correct) {
         resetCardColors();
-
         CardView selectedCard = getCardByAnswer(selected);
         if (selectedCard == null) return;
 
-        // Highlight đáp án đã chọn
-        int color = selected.equals(correct) 
-            ? R.color.success 
-            : R.color.error;
+        int color = selected.equals(correct) ? R.color.success : R.color.error;
         selectedCard.setCardBackgroundColor(ContextCompat.getColor(this, color));
 
-        // Nếu sai, hiển thị đáp án đúng
         if (!selected.equals(correct)) {
             CardView correctCard = getCardByAnswer(correct);
             if (correctCard != null) {
-                correctCard.setCardBackgroundColor(
-                    ContextCompat.getColor(this, R.color.success)
-                );
+                correctCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.success));
             }
         }
     }
@@ -280,9 +224,9 @@ public class QuestionActivity extends AppCompatActivity {
     }
 
     private void resetCardColors() {
-        int defaultColor = ContextCompat.getColor(this, R.color.card_light);
+        int color = ContextCompat.getColor(this, R.color.card_light);
         for (CardView card : new CardView[]{cardOptionA, cardOptionB, cardOptionC, cardOptionD}) {
-            card.setCardBackgroundColor(defaultColor);
+            card.setCardBackgroundColor(color);
         }
     }
 
@@ -296,14 +240,8 @@ public class QuestionActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (questionDAO != null) {
-            questionDAO.close();
-        }
-        if (bookmarkDAO != null) {
-            bookmarkDAO.close();
-        }
-        if (historyDAO != null) {
-            historyDAO.close();
-        }
+        if (questionDAO != null) questionDAO.close();
+        if (bookmarkDAO != null) bookmarkDAO.close();
+        if (historyDAO != null) historyDAO.close();
     }
 }

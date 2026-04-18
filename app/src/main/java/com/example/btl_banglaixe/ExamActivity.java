@@ -24,20 +24,14 @@ public class ExamActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exam);
-
         prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
 
-        // Xử lý system bars
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.main),
-            (v, insets) -> {
-                androidx.core.graphics.Insets systemBars = insets.getInsets(
-                    androidx.core.view.WindowInsetsCompat.Type.systemBars()
-                );
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-                return insets;
-            }
-        );
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            androidx.core.graphics.Insets systemBars = insets.getInsets(
+                androidx.core.view.WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         setupViews();
         loadExams();
@@ -45,37 +39,26 @@ public class ExamActivity extends AppCompatActivity {
 
     private void setupViews() {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        
         recyclerView = findViewById(R.id.recyclerExams);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private void loadExams() {
         List<ExamItem> exams = new ArrayList<>();
-        
-        // Đề ngẫu nhiên
         exams.add(new ExamItem(0, "Đề ngẫu nhiên", "25 câu hỏi được chọn ngẫu nhiên", true));
-        
-        // 15 đề có sẵn
         for (int i = 1; i <= 15; i++) {
             exams.add(new ExamItem(i, "Đề số " + i, "25 câu hỏi theo cấu trúc thi thật", false));
         }
-        
         adapter = new ExamAdapter(exams, this::startExam);
         recyclerView.setAdapter(adapter);
     }
 
     private void startExam(ExamItem exam) {
-        // Hiển thị dialog chọn chế độ hiển thị đáp án
         new androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Chế độ thi")
             .setMessage("Bạn muốn hiển thị đáp án ngay khi chọn?")
-            .setPositiveButton("Hiện đáp án ngay", (dialog, which) -> {
-                launchExam(exam.getId(), true);
-            })
-            .setNegativeButton("Không hiện", (dialog, which) -> {
-                launchExam(exam.getId(), false);
-            })
+            .setPositiveButton("Hiện đáp án ngay", (d, w) -> launchExam(exam.getId(), true))
+            .setNegativeButton("Không hiện", (d, w) -> launchExam(exam.getId(), false))
             .show();
     }
 
@@ -86,7 +69,6 @@ public class ExamActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // Inner class cho exam item
     public static class ExamItem {
         private int id;
         private String title;

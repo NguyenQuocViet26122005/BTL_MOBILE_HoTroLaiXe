@@ -8,7 +8,6 @@
     android:background="@color/background_light"
     tools:context=".ExamQuestionActivity">
 
-    <!-- Top Bar với gradient -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
@@ -45,7 +44,6 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <!-- Thay bookmark bằng nút Nộp bài -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,7 +70,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Progress với số câu -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -112,7 +109,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -126,7 +122,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Critical Badge -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/criticalBadge"
                 android:layout_width="wrap_content"
@@ -148,7 +143,6 @@
                     android:textStyle="bold" />
             </androidx.cardview.widget.CardView>
 
-            <!-- Question Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -170,7 +164,6 @@
                     android:ellipsize="none" />
             </androidx.cardview.widget.CardView>
 
-            <!-- Question Image -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/imageCard"
                 android:layout_width="match_parent"
@@ -190,7 +183,6 @@
                     android:maxHeight="300dp" />
             </androidx.cardview.widget.CardView>
 
-            <!-- Answer Options -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -200,7 +192,6 @@
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <!-- Option A -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardOptionA"
                 android:layout_width="match_parent"
@@ -242,7 +233,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Option B -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardOptionB"
                 android:layout_width="match_parent"
@@ -284,7 +274,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Option C -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardOptionC"
                 android:layout_width="match_parent"
@@ -327,7 +316,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Option D -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardOptionD"
                 android:layout_width="match_parent"
@@ -369,7 +357,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Explanation Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/explanationCard"
                 android:layout_width="match_parent"
@@ -421,11 +408,9 @@
                         android:ellipsize="none" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Buttons -->
     <LinearLayout
         android:id="@+id/bottomButtons"
         android:layout_width="match_parent"
@@ -476,5 +461,4 @@
             android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
-
 </RelativeLayout>
