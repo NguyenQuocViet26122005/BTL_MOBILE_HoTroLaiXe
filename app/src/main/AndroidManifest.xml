@@ -28,6 +28,14 @@
             android:name=".QuestionActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ExamActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ExamQuestionActivity"
+            android:exported="false"
+            android:parentActivityName=".ExamActivity" />
     </application>
 
 </manifest>

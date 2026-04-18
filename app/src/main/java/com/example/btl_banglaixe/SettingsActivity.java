@@ -26,6 +26,18 @@ public class SettingsActivity extends AppCompatActivity {
         
         setContentView(R.layout.activity_settings);
 
+        // Xử lý system bars
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
+            findViewById(R.id.main),
+            (v, insets) -> {
+                androidx.core.graphics.Insets systemBars = insets.getInsets(
+                    androidx.core.view.WindowInsetsCompat.Type.systemBars()
+                );
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            }
+        );
+
         setupViews();
         loadSettings();
         setupListeners();
@@ -103,7 +115,7 @@ public class SettingsActivity extends AppCompatActivity {
             .setMessage("Ứng dụng Thi Bằng Lái Xe\n\n" +
                     "Phiên bản: 1.0.0\n\n" +
                     "Ứng dụng hỗ trợ học và thi thử bằng lái xe hạng A và A1.\n\n" +
-                    "© 2024 - Phát triển bởi BTL Mobile")
+                    "© 2026 - Nguyễn Quốc Việt")
             .setPositiveButton("Đóng", null)
             .show();
     }
@@ -111,16 +123,35 @@ public class SettingsActivity extends AppCompatActivity {
     private void showResetDialog() {
         new AlertDialog.Builder(this)
             .setTitle("Đặt lại tiến độ")
-            .setMessage("Bạn có chắc chắn muốn đặt lại toàn bộ tiến độ học tập?\n\n" +
+            .setMessage("Bạn có chắc chắn muốn đặt lại toàn bộ?\n\n" +
+                    "• Xóa lịch sử trả lời\n" +
+                    "• Xóa câu hỏi đã đánh dấu\n" +
+                    "• Đặt lại cài đặt về mặc định\n\n" +
                     "Hành động này không thể hoàn tác.")
             .setPositiveButton("Đặt lại", (dialog, which) -> {
-                // Reset progress
+                // Xóa lịch sử
+                com.example.btl_banglaixe.database.HistoryDAO historyDAO = 
+                    new com.example.btl_banglaixe.database.HistoryDAO(this);
+                historyDAO.clearHistory();
+                historyDAO.close();
+                
+                // Xóa bookmarks
+                android.database.sqlite.SQLiteDatabase db = 
+                    new com.example.btl_banglaixe.database.DatabaseHelper(this).getWritableDatabase();
+                db.delete("bookmarks", null, null);
+                db.close();
+                
+                // Reset cài đặt
                 prefs.edit()
-                    .remove("questions_imported")
+                    .clear()
+                    .putString("license_type", "A1")
+                    .putBoolean("dark_mode", false)
                     .apply();
                 
-                Toast.makeText(this, "Đã đặt lại tiến độ", Toast.LENGTH_SHORT).show();
-                finish();
+                Toast.makeText(this, "Đã đặt lại tất cả về ban đầu", Toast.LENGTH_SHORT).show();
+                
+                // Restart activity để áp dụng theme mặc định
+                recreate();
             })
             .setNegativeButton("Hủy", null)
             .show();

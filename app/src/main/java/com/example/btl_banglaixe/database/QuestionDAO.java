@@ -128,7 +128,7 @@ public class QuestionDAO {
     }
 
     // Chuyển đổi Cursor thành Question object
-    private Question cursorToQuestion(Cursor cursor) {
+    public Question cursorToQuestion(Cursor cursor) {
         Question question = new Question();
         question.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
         question.setQuestionText(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_QUESTION_TEXT)));

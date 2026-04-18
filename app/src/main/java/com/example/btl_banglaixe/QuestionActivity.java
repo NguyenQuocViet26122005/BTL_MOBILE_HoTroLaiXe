@@ -17,6 +17,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.btl_banglaixe.database.BookmarkDAO;
+import com.example.btl_banglaixe.database.HistoryDAO;
 import com.example.btl_banglaixe.database.QuestionDAO;
 import com.example.btl_banglaixe.models.Question;
 
@@ -31,10 +33,13 @@ public class QuestionActivity extends AppCompatActivity {
     private ProgressBar progressBar;
 
     private QuestionDAO questionDAO;
+    private BookmarkDAO bookmarkDAO;
+    private HistoryDAO historyDAO;
     private List<Question> questions;
     private int currentQuestionIndex = 0;
     private String selectedAnswer = "";
     private boolean isAnswered = false;
+    private boolean isBookmarked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,14 +86,24 @@ public class QuestionActivity extends AppCompatActivity {
 
     private void loadQuestions() {
         questionDAO = new QuestionDAO(this);
+        bookmarkDAO = new BookmarkDAO(this);
+        historyDAO = new HistoryDAO(this);
         
-        // Lấy category từ Intent (nếu có)
+        // Lấy category từ Intent
         String category = getIntent().getStringExtra("category");
         
-        if (category != null && !category.isEmpty()) {
-            questions = questionDAO.getQuestionsByCategory(category);
-        } else {
+        if (category == null) {
+            // Không có category = Học tập tất cả 250 câu
             questions = questionDAO.getAllQuestions();
+        } else if (category.equals("critical")) {
+            // Câu điểm liệt
+            questions = questionDAO.getCriticalQuestions();
+        } else if (category.equals("bookmarked")) {
+            // Câu đã đánh dấu
+            questions = bookmarkDAO.getBookmarkedQuestions();
+        } else {
+            // Category cụ thể
+            questions = questionDAO.getQuestionsByCategory(category);
         }
 
         if (questions.isEmpty()) {
@@ -99,9 +114,8 @@ public class QuestionActivity extends AppCompatActivity {
 
     private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());
-        btnBookmark.setOnClickListener(v -> 
-            Toast.makeText(this, "Đã lưu câu hỏi", Toast.LENGTH_SHORT).show()
-        );
+        
+        btnBookmark.setOnClickListener(v -> toggleBookmark());
 
         // Setup các option cards
         cardOptionA.setOnClickListener(v -> selectAnswer("A"));
@@ -111,6 +125,25 @@ public class QuestionActivity extends AppCompatActivity {
 
         btnPrevious.setOnClickListener(v -> navigateQuestion(-1));
         btnNext.setOnClickListener(v -> navigateQuestion(1));
+    }
+
+    private void toggleBookmark() {
+        Question currentQuestion = questions.get(currentQuestionIndex);
+        int questionId = currentQuestion.getId();
+        
+        if (isBookmarked) {
+            // Xóa bookmark
+            bookmarkDAO.removeBookmark(questionId);
+            isBookmarked = false;
+            btnBookmark.setImageResource(R.drawable.ic_star_outline);
+            Toast.makeText(this, "Đã bỏ đánh dấu", Toast.LENGTH_SHORT).show();
+        } else {
+            // Thêm bookmark
+            bookmarkDAO.addBookmark(questionId);
+            isBookmarked = true;
+            btnBookmark.setImageResource(R.drawable.ic_star_filled);
+            Toast.makeText(this, "Đã đánh dấu câu hỏi", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void navigateQuestion(int direction) {
@@ -142,11 +175,33 @@ public class QuestionActivity extends AppCompatActivity {
         tvQuestion.setText(question.getQuestionText());
         criticalBadge.setVisibility(question.isCritical() ? View.VISIBLE : View.GONE);
 
+        // Kiểm tra và cập nhật trạng thái bookmark
+        isBookmarked = bookmarkDAO.isBookmarked(question.getId());
+        btnBookmark.setImageResource(isBookmarked ? 
+            R.drawable.ic_star_filled : R.drawable.ic_star_outline);
+
         // Hiển thị ảnh nếu có
-        imageCard.setVisibility(
-            question.getImagePath() != null && !question.getImagePath().isEmpty() 
-            ? View.VISIBLE : View.GONE
-        );
+        if (question.getImagePath() != null && !question.getImagePath().isEmpty()) {
+            try {
+                // Load ảnh từ drawable
+                int resId = getResources().getIdentifier(
+                    question.getImagePath(), 
+                    "drawable", 
+                    getPackageName()
+                );
+                
+                if (resId != 0) {
+                    ivQuestion.setImageResource(resId);
+                    imageCard.setVisibility(View.VISIBLE);
+                } else {
+                    imageCard.setVisibility(View.GONE);
+                }
+            } catch (Exception e) {
+                imageCard.setVisibility(View.GONE);
+            }
+        } else {
+            imageCard.setVisibility(View.GONE);
+        }
 
         // Hiển thị các đáp án
         tvOptionA.setText(question.getOptionA());
@@ -180,6 +235,9 @@ public class QuestionActivity extends AppCompatActivity {
 
         Question question = questions.get(currentQuestionIndex);
         String correctAnswer = question.getCorrectAnswer();
+
+        // Lưu lịch sử trả lời
+        historyDAO.saveAnswer(question.getId(), answer, correctAnswer);
 
         // Hiển thị kết quả
         highlightAnswer(answer, correctAnswer);
@@ -240,6 +298,12 @@ public class QuestionActivity extends AppCompatActivity {
         super.onDestroy();
         if (questionDAO != null) {
             questionDAO.close();
+        }
+        if (bookmarkDAO != null) {
+            bookmarkDAO.close();
+        }
+        if (historyDAO != null) {
+            historyDAO.close();
         }
     }
 }

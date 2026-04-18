@@ -1,0 +1,462 @@
+package com.example.btl_banglaixe;
+
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+
+import com.example.btl_banglaixe.database.QuestionDAO;
+import com.example.btl_banglaixe.models.Question;
+import com.example.btl_banglaixe.utils.ExamGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+public class ExamQuestionActivity extends AppCompatActivity {
+
+    private TextView tvQuestionNumber, tvQuestion, tvOptionA, tvOptionB, tvOptionC, tvOptionD;
+    private TextView tvTimer, tvWrongCount, tvExplanation;
+    private CardView cardOptionA, cardOptionB, cardOptionC, cardOptionD;
+    private CardView criticalBadge, imageCard, explanationCard;
+    private ImageView ivQuestion, btnBack;
+    private Button btnPrevious, btnNext, btnSubmit;
+    private ProgressBar progressBar;
+
+    private QuestionDAO questionDAO;
+    private List<Question> examQuestions;
+    private List<String> userAnswers;
+    private int currentQuestionIndex = 0;
+    private boolean showAnswerImmediately;
+    private CountDownTimer timer;
+    private long timeLeftInMillis = 19 * 60 * 1000; // 19 phút
+    
+    private int wrongCount = 0;
+    private int criticalWrongCount = 0;
+    private int maxWrongAllowed = 4; // Mặc định A1
+    private String licenseType;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_exam_question);
+
+        // Xử lý system bars
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
+            findViewById(R.id.main),
+            (v, insets) -> {
+                androidx.core.graphics.Insets systemBars = insets.getInsets(
+                    androidx.core.view.WindowInsetsCompat.Type.systemBars()
+                );
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            }
+        );
+
+        initViews();
+        loadExamSettings();
+        loadExamQuestions();
+        setupListeners();
+        displayQuestion();
+        startTimer();
+    }
+
+    private void initViews() {
+        tvQuestionNumber = findViewById(R.id.tvQuestionNumber);
+        tvQuestion = findViewById(R.id.tvQuestion);
+        tvOptionA = findViewById(R.id.tvOptionA);
+        tvOptionB = findViewById(R.id.tvOptionB);
+        tvOptionC = findViewById(R.id.tvOptionC);
+        tvOptionD = findViewById(R.id.tvOptionD);
+        tvTimer = findViewById(R.id.tvTimer);
+        tvWrongCount = findViewById(R.id.tvWrongCount);
+        tvExplanation = findViewById(R.id.tvExplanation);
+
+        cardOptionA = findViewById(R.id.cardOptionA);
+        cardOptionB = findViewById(R.id.cardOptionB);
+        cardOptionC = findViewById(R.id.cardOptionC);
+        cardOptionD = findViewById(R.id.cardOptionD);
+        criticalBadge = findViewById(R.id.criticalBadge);
+        imageCard = findViewById(R.id.imageCard);
+        explanationCard = findViewById(R.id.explanationCard);
+
+        ivQuestion = findViewById(R.id.ivQuestion);
+        btnBack = findViewById(R.id.btnBack);
+        btnPrevious = findViewById(R.id.btnPrevious);
+        btnNext = findViewById(R.id.btnNext);
+        btnSubmit = findViewById(R.id.btnSubmit);
+        progressBar = findViewById(R.id.progressBar);
+    }
+
+    private void loadExamSettings() {
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        licenseType = prefs.getString("license_type", "A1");
+        
+        // Thiết lập số câu sai tối đa
+        maxWrongAllowed = licenseType.equals("A") ? 2 : 4;
+        
+        showAnswerImmediately = getIntent().getBooleanExtra("show_answer_immediately", false);
+    }
+
+    private void loadExamQuestions() {
+        questionDAO = new QuestionDAO(this);
+        int examId = getIntent().getIntExtra("exam_id", 0);
+        
+        // Tạo đề thi
+        examQuestions = ExamGenerator.generateExam(questionDAO, examId);
+        userAnswers = new ArrayList<>();
+        for (int i = 0; i < examQuestions.size(); i++) {
+            userAnswers.add("");
+        }
+    }
+
+    private void setupListeners() {
+        btnBack.setOnClickListener(v -> showExitConfirmation());
+        
+        cardOptionA.setOnClickListener(v -> selectAnswer("A"));
+        cardOptionB.setOnClickListener(v -> selectAnswer("B"));
+        cardOptionC.setOnClickListener(v -> selectAnswer("C"));
+        cardOptionD.setOnClickListener(v -> selectAnswer("D"));
+
+        btnPrevious.setOnClickListener(v -> navigateQuestion(-1));
+        btnNext.setOnClickListener(v -> navigateQuestion(1));
+        btnSubmit.setOnClickListener(v -> submitExam());
+    }
+
+    private void startTimer() {
+        timer = new CountDownTimer(timeLeftInMillis, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timeLeftInMillis = millisUntilFinished;
+                updateTimer();
+            }
+
+            @Override
+            public void onFinish() {
+                submitExam();
+            }
+        }.start();
+    }
+
+    private void updateTimer() {
+        int minutes = (int) (timeLeftInMillis / 1000) / 60;
+        int seconds = (int) (timeLeftInMillis / 1000) % 60;
+        tvTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds));
+    }
+
+    private void displayQuestion() {
+        if (examQuestions == null || examQuestions.isEmpty()) return;
+
+        Question question = examQuestions.get(currentQuestionIndex);
+
+        // Cập nhật số câu hỏi và progress
+        tvQuestionNumber.setText("Câu " + (currentQuestionIndex + 1) + "/25");
+        progressBar.setMax(25);
+        progressBar.setProgress(currentQuestionIndex + 1);
+
+        // Hiển thị câu hỏi và badge điểm liệt
+        tvQuestion.setText(question.getQuestionText());
+        criticalBadge.setVisibility(question.isCritical() ? View.VISIBLE : View.GONE);
+
+        // Hiển thị ảnh nếu có
+        if (question.getImagePath() != null && !question.getImagePath().isEmpty()) {
+            try {
+                int resId = getResources().getIdentifier(
+                    question.getImagePath(), 
+                    "drawable", 
+                    getPackageName()
+                );
+                
+                if (resId != 0) {
+                    ivQuestion.setImageResource(resId);
+                    imageCard.setVisibility(View.VISIBLE);
+                } else {
+                    imageCard.setVisibility(View.GONE);
+                }
+            } catch (Exception e) {
+                imageCard.setVisibility(View.GONE);
+            }
+        } else {
+            imageCard.setVisibility(View.GONE);
+        }
+
+        // Hiển thị các đáp án
+        tvOptionA.setText(question.getOptionA());
+        tvOptionB.setText(question.getOptionB());
+        setOptionVisibility(cardOptionC, tvOptionC, question.getOptionC());
+        setOptionVisibility(cardOptionD, tvOptionD, question.getOptionD());
+
+        // Hiển thị giải thích
+        if (question.getExplanation() != null && !question.getExplanation().isEmpty()) {
+            tvExplanation.setText(question.getExplanation());
+        }
+
+        // Khôi phục đáp án đã chọn
+        String previousAnswer = userAnswers.get(currentQuestionIndex);
+        if (!previousAnswer.isEmpty()) {
+            highlightSelectedAnswer(previousAnswer);
+            if (showAnswerImmediately) {
+                highlightCorrectAnswer(question.getCorrectAnswer(), previousAnswer);
+                explanationCard.setVisibility(View.VISIBLE);
+            }
+        } else {
+            resetCardColors();
+            explanationCard.setVisibility(View.GONE);
+        }
+
+        // Cập nhật nút Previous/Next
+        btnPrevious.setEnabled(currentQuestionIndex > 0);
+        btnNext.setText(currentQuestionIndex == 24 ? "Nộp bài" : "Câu tiếp");
+    }
+
+    private void setOptionVisibility(CardView card, TextView textView, String option) {
+        if (option != null && !option.isEmpty()) {
+            card.setVisibility(View.VISIBLE);
+            textView.setText(option);
+        } else {
+            card.setVisibility(View.GONE);
+        }
+    }
+
+    private void selectAnswer(String answer) {
+        String previousAnswer = userAnswers.get(currentQuestionIndex);
+        
+        // Nếu đã chọn rồi và không cho phép đổi (chế độ hiện đáp án ngay)
+        if (!previousAnswer.isEmpty() && showAnswerImmediately) {
+            return;
+        }
+
+        // Cập nhật số câu sai nếu thay đổi đáp án
+        Question question = examQuestions.get(currentQuestionIndex);
+        String correctAnswer = question.getCorrectAnswer();
+        
+        if (!previousAnswer.isEmpty()) {
+            // Xóa đếm câu sai cũ
+            if (!previousAnswer.equals(correctAnswer)) {
+                wrongCount--;
+                if (question.isCritical()) {
+                    criticalWrongCount--;
+                }
+            }
+        }
+        
+        // Lưu đáp án mới
+        userAnswers.set(currentQuestionIndex, answer);
+        
+        // Đếm câu sai mới
+        if (!answer.equals(correctAnswer)) {
+            wrongCount++;
+            if (question.isCritical()) {
+                criticalWrongCount++;
+            }
+        }
+        
+        updateWrongCount();
+
+        // Hiển thị kết quả
+        if (showAnswerImmediately) {
+            highlightCorrectAnswer(correctAnswer, answer);
+            explanationCard.setVisibility(View.VISIBLE);
+            
+            // Kiểm tra trượt ngay
+            if (criticalWrongCount > 0 || wrongCount > maxWrongAllowed) {
+                showFailedDialog();
+            }
+        } else {
+            highlightSelectedAnswer(answer);
+        }
+    }
+
+    private void highlightSelectedAnswer(String answer) {
+        resetCardColors();
+        CardView selectedCard = getCardByAnswer(answer);
+        if (selectedCard != null) {
+            selectedCard.setCardBackgroundColor(
+                ContextCompat.getColor(this, R.color.primary)
+            );
+        }
+    }
+
+    private void highlightCorrectAnswer(String correct, String selected) {
+        resetCardColors();
+
+        CardView selectedCard = getCardByAnswer(selected);
+        if (selectedCard != null) {
+            int color = selected.equals(correct) ? R.color.success : R.color.error;
+            selectedCard.setCardBackgroundColor(ContextCompat.getColor(this, color));
+        }
+
+        if (!selected.equals(correct)) {
+            CardView correctCard = getCardByAnswer(correct);
+            if (correctCard != null) {
+                correctCard.setCardBackgroundColor(
+                    ContextCompat.getColor(this, R.color.success)
+                );
+            }
+        }
+    }
+
+    private CardView getCardByAnswer(String answer) {
+        switch (answer) {
+            case "A": return cardOptionA;
+            case "B": return cardOptionB;
+            case "C": return cardOptionC;
+            case "D": return cardOptionD;
+            default: return null;
+        }
+    }
+
+    private void resetCardColors() {
+        int defaultColor = ContextCompat.getColor(this, R.color.card_light);
+        for (CardView card : new CardView[]{cardOptionA, cardOptionB, cardOptionC, cardOptionD}) {
+            card.setCardBackgroundColor(defaultColor);
+        }
+    }
+
+    private void updateWrongCount() {
+        tvWrongCount.setText("Sai: " + wrongCount + "/" + maxWrongAllowed);
+        
+        // Đổi màu cảnh báo
+        if (criticalWrongCount > 0) {
+            tvWrongCount.setTextColor(ContextCompat.getColor(this, R.color.error));
+        } else if (wrongCount >= maxWrongAllowed - 1) {
+            tvWrongCount.setTextColor(ContextCompat.getColor(this, R.color.accent_orange));
+        } else {
+            tvWrongCount.setTextColor(ContextCompat.getColor(this, R.color.text_primary_light));
+        }
+    }
+
+    private void navigateQuestion(int direction) {
+        int newIndex = currentQuestionIndex + direction;
+        
+        if (newIndex < 0 || newIndex >= examQuestions.size()) {
+            if (direction > 0) {
+                submitExam();
+            }
+            return;
+        }
+        
+        currentQuestionIndex = newIndex;
+        displayQuestion();
+    }
+
+    private void submitExam() {
+        // Kiểm tra còn câu chưa trả lời
+        int unansweredCount = 0;
+        for (String answer : userAnswers) {
+            if (answer.isEmpty()) {
+                unansweredCount++;
+            }
+        }
+        
+        if (unansweredCount > 0) {
+            new AlertDialog.Builder(this)
+                .setTitle("Chưa hoàn thành")
+                .setMessage("Bạn còn " + unansweredCount + " câu chưa trả lời.\n\nBạn có chắc muốn nộp bài?")
+                .setPositiveButton("Nộp bài", (dialog, which) -> calculateResult())
+                .setNegativeButton("Tiếp tục làm", null)
+                .show();
+        } else {
+            calculateResult();
+        }
+    }
+
+    private void calculateResult() {
+        if (timer != null) {
+            timer.cancel();
+        }
+        
+        // Tính điểm
+        int correctCount = 0;
+        wrongCount = 0;
+        criticalWrongCount = 0;
+        
+        for (int i = 0; i < examQuestions.size(); i++) {
+            Question q = examQuestions.get(i);
+            String userAnswer = userAnswers.get(i);
+            
+            if (userAnswer.equals(q.getCorrectAnswer())) {
+                correctCount++;
+            } else if (!userAnswer.isEmpty()) {
+                wrongCount++;
+                if (q.isCritical()) {
+                    criticalWrongCount++;
+                }
+            }
+        }
+        
+        // Kiểm tra đậu/rớt
+        boolean passed = criticalWrongCount == 0 && wrongCount <= maxWrongAllowed;
+        
+        showResultDialog(passed, correctCount, wrongCount, criticalWrongCount);
+    }
+
+    private void showResultDialog(boolean passed, int correct, int wrong, int criticalWrong) {
+        String title = passed ? "🎉 Đậu" : "😢 Rớt";
+        String message = "Kết quả thi của bạn:\n\n" +
+                "✅ Đúng: " + correct + "/25 câu\n" +
+                "❌ Sai: " + wrong + "/25 câu\n";
+        
+        if (criticalWrong > 0) {
+            message += "⚠️ Sai câu điểm liệt: " + criticalWrong + " câu\n\n";
+            message += "Lý do: Sai câu điểm liệt";
+        } else if (wrong > maxWrongAllowed) {
+            message += "\nLý do: Sai quá " + maxWrongAllowed + " câu (Hạng " + licenseType + ")";
+        } else {
+            message += "\n🎊 Chúc mừng bạn đã đạt!";
+        }
+        
+        new AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Xem đáp án", (dialog, which) -> {
+                // TODO: Hiển thị màn hình xem lại đáp án
+                finish();
+            })
+            .setNegativeButton("Về trang chủ", (dialog, which) -> finish())
+            .setCancelable(false)
+            .show();
+    }
+
+    private void showFailedDialog() {
+        String reason = criticalWrongCount > 0 
+            ? "Bạn đã sai câu điểm liệt!" 
+            : "Bạn đã sai quá " + maxWrongAllowed + " câu!";
+        
+        new AlertDialog.Builder(this)
+            .setTitle("😢 Rớt")
+            .setMessage(reason + "\n\nBạn có muốn tiếp tục làm các câu còn lại?")
+            .setPositiveButton("Tiếp tục", null)
+            .setNegativeButton("Nộp bài", (dialog, which) -> calculateResult())
+            .show();
+    }
+
+    private void showExitConfirmation() {
+        new AlertDialog.Builder(this)
+            .setTitle("Thoát bài thi")
+            .setMessage("Bạn có chắc muốn thoát?\n\nKết quả sẽ không được lưu.")
+            .setPositiveButton("Thoát", (dialog, which) -> finish())
+            .setNegativeButton("Ở lại", null)
+            .show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (timer != null) {
+            timer.cancel();
+        }
+        if (questionDAO != null) {
+            questionDAO.close();
+        }
+    }
+}

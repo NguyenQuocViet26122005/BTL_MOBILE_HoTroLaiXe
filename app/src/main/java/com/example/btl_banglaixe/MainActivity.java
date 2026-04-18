@@ -8,6 +8,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.example.btl_banglaixe.database.HistoryDAO;
+import com.example.btl_banglaixe.database.QuestionDAO;
 import com.example.btl_banglaixe.utils.JsonImporter;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,6 +28,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Xử lý system bars (status bar, navigation bar)
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
+            findViewById(R.id.main),
+            (v, insets) -> {
+                androidx.core.graphics.Insets systemBars = insets.getInsets(
+                    androidx.core.view.WindowInsetsCompat.Type.systemBars()
+                );
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            }
+        );
+
         // Import câu hỏi lần đầu tiên
         importQuestionsFirstTime();
 
@@ -37,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateLicenseType();
+        updateProgress();
     }
 
     private void importQuestionsFirstTime() {
@@ -60,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Quick Actions
         findViewById(R.id.cardStudy).setOnClickListener(v -> 
-            openQuestionActivity("Khái niệm và quy tắc")
+            openQuestionActivity(null) // null = tất cả 250 câu
         );
         
         findViewById(R.id.cardSigns).setOnClickListener(v -> 
@@ -68,20 +83,20 @@ public class MainActivity extends AppCompatActivity {
         );
         
         findViewById(R.id.cardExam).setOnClickListener(v -> 
-            Toast.makeText(this, "Chức năng thi thử đang phát triển", Toast.LENGTH_SHORT).show()
+            startActivity(new Intent(this, ExamActivity.class))
         );
         
         findViewById(R.id.cardBookmark).setOnClickListener(v -> 
-            Toast.makeText(this, "Chức năng đánh dấu đang phát triển", Toast.LENGTH_SHORT).show()
+            openQuestionActivity("bookmarked")
         );
 
-        // Danh mục học tập
-        setupCategoryCard(R.id.cardCriticalQuestions, "Câu hỏi điểm liệt");
-        setupCategoryCard(R.id.cardConceptsRules, "Khái niệm và quy tắc");
-        setupCategoryCard(R.id.cardCultureEthics, "Văn hóa và đạo đức");
-        setupCategoryCard(R.id.cardDrivingTechniques, "Kỹ thuật lái xe");
-        setupCategoryCard(R.id.cardTrafficSigns, "Biển báo đường bộ");
-        setupCategoryCard(R.id.cardSituations, "Sa hình");
+        // Danh mục học tập - 5 chương theo PDF
+        setupCategoryCard(R.id.cardCriticalQuestions, "critical"); // Câu điểm liệt
+        setupCategoryCard(R.id.cardConceptsRules, "Quy định chung và quy tắc giao thông đường bộ"); // Chương 1: 1-100
+        setupCategoryCard(R.id.cardCultureEthics, "Văn hóa giao thông, đạo đức người lái xe"); // Chương 2: 101-110
+        setupCategoryCard(R.id.cardDrivingTechniques, "Kỹ thuật lái xe"); // Chương 3: 111-125
+        setupCategoryCard(R.id.cardTrafficSigns, "Biển báo đường bộ"); // Chương 4: 126-215
+        setupCategoryCard(R.id.cardSituations, "Sa hình"); // Chương 5: 216-250
     }
 
     private void setupCategoryCard(int cardId, String category) {
@@ -89,8 +104,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openQuestionActivity(String category) {
-        startActivity(new Intent(this, QuestionActivity.class)
-            .putExtra("category", category));
+        Intent intent = new Intent(this, QuestionActivity.class);
+        if (category != null) {
+            intent.putExtra("category", category);
+        }
+        startActivity(intent);
     }
 
     private void updateLicenseType() {
@@ -99,5 +117,39 @@ public class MainActivity extends AppCompatActivity {
         
         android.widget.TextView tvLicenseType = findViewById(R.id.tvLicenseType);
         tvLicenseType.setText("Hạng " + licenseType);
+    }
+
+    private void updateProgress() {
+        HistoryDAO historyDAO = new HistoryDAO(this);
+        QuestionDAO questionDAO = new QuestionDAO(this);
+        
+        int totalQuestions = questionDAO.getAllQuestions().size();
+        int answeredCount = historyDAO.getAnsweredCount();
+        int correctCount = historyDAO.getCorrectCount();
+        
+        // Tính phần trăm
+        int progressPercent = totalQuestions > 0 ? (answeredCount * 100 / totalQuestions) : 0;
+        int accuracyPercent = answeredCount > 0 ? (correctCount * 100 / answeredCount) : 0;
+        
+        // Cập nhật UI
+        android.widget.TextView tvProgress = findViewById(R.id.tvProgress);
+        android.widget.TextView tvAccuracy = findViewById(R.id.tvAccuracy);
+        android.widget.ProgressBar progressBar = findViewById(R.id.progressBar);
+        
+        if (tvProgress != null) {
+            tvProgress.setText(answeredCount + "/" + totalQuestions + " câu (" + progressPercent + "%)");
+        }
+        
+        if (tvAccuracy != null) {
+            tvAccuracy.setText("Độ chính xác: " + accuracyPercent + "% (" + correctCount + "/" + answeredCount + " đúng)");
+        }
+        
+        if (progressBar != null) {
+            progressBar.setMax(totalQuestions);
+            progressBar.setProgress(answeredCount);
+        }
+        
+        historyDAO.close();
+        questionDAO.close();
     }
 }
