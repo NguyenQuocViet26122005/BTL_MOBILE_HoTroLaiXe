@@ -47,6 +47,20 @@ public class HistoryDAO {
         return answer;
     }
 
+    public Boolean getLastAnswerResult(int questionId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_HISTORY, new String[]{COLUMN_IS_CORRECT},
+            COLUMN_QUESTION_ID + " = ?", new String[]{String.valueOf(questionId)},
+            null, null, COLUMN_TIMESTAMP + " DESC", "1");
+        
+        Boolean result = null;
+        if (cursor.moveToFirst()) {
+            result = cursor.getInt(0) == 1;
+        }
+        cursor.close();
+        return result;
+    }
+
     public int getAnsweredCount() {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery(

@@ -26,7 +26,7 @@ import java.util.List;
 
 public class QuestionActivity extends AppCompatActivity {
 
-    private TextView tvQuestionNumber, tvQuestion, tvOptionA, tvOptionB, tvOptionC, tvOptionD, tvExplanation;
+    private TextView tvQuestionNumber, tvQuestion, tvOptionA, tvOptionB, tvOptionC, tvOptionD, tvExplanation, tvHistoryStatus;
     private CardView cardOptionA, cardOptionB, cardOptionC, cardOptionD, criticalBadge, imageCard, explanationCard;
     private ImageView ivQuestion, btnBack, btnBookmark;
     private Button btnPrevious, btnNext;
@@ -67,6 +67,7 @@ public class QuestionActivity extends AppCompatActivity {
         tvOptionC = findViewById(R.id.tvOptionC);
         tvOptionD = findViewById(R.id.tvOptionD);
         tvExplanation = findViewById(R.id.tvExplanation);
+        tvHistoryStatus = findViewById(R.id.tvHistoryStatus);
         cardOptionA = findViewById(R.id.cardOptionA);
         cardOptionB = findViewById(R.id.cardOptionB);
         cardOptionC = findViewById(R.id.cardOptionC);
@@ -152,6 +153,20 @@ public class QuestionActivity extends AppCompatActivity {
         isBookmarked = bookmarkDAO.isBookmarked(q.getId());
         btnBookmark.setImageResource(isBookmarked ? R.drawable.ic_star_filled : R.drawable.ic_star_outline);
 
+        Boolean lastResult = historyDAO.getLastAnswerResult(q.getId());
+        if (lastResult != null) {
+            tvHistoryStatus.setVisibility(View.VISIBLE);
+            if (lastResult) {
+                tvHistoryStatus.setText("✓");
+                tvHistoryStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_green));
+            } else {
+                tvHistoryStatus.setText("✗");
+                tvHistoryStatus.setTextColor(ContextCompat.getColor(this, R.color.error));
+            }
+        } else {
+            tvHistoryStatus.setVisibility(View.GONE);
+        }
+
         if (q.getImagePath() != null && !q.getImagePath().isEmpty()) {
             int resId = getResources().getIdentifier(q.getImagePath(), "drawable", getPackageName());
             if (resId != 0) {
@@ -192,9 +207,19 @@ public class QuestionActivity extends AppCompatActivity {
         isAnswered = true;
 
         Question q = questions.get(currentQuestionIndex);
+        boolean isCorrect = answer.equals(q.getCorrectAnswer());
         historyDAO.saveAnswer(q.getId(), answer, q.getCorrectAnswer());
         highlightAnswer(answer, q.getCorrectAnswer());
         explanationCard.setVisibility(View.VISIBLE);
+        
+        tvHistoryStatus.setVisibility(View.VISIBLE);
+        if (isCorrect) {
+            tvHistoryStatus.setText("✓");
+            tvHistoryStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_green));
+        } else {
+            tvHistoryStatus.setText("✗");
+            tvHistoryStatus.setTextColor(ContextCompat.getColor(this, R.color.error));
+        }
     }
 
     private void highlightAnswer(String selected, String correct) {
