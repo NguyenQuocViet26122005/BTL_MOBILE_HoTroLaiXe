@@ -26,7 +26,7 @@ import java.util.List;
 
 public class QuestionActivity extends AppCompatActivity {
 
-    private TextView tvQuestionNumber, tvQuestion, tvOptionA, tvOptionB, tvOptionC, tvOptionD, tvExplanation, tvHistoryStatus;
+    private TextView tvQuestionNumber, tvQuestion, tvOptionA, tvOptionB, tvOptionC, tvOptionD, tvExplanation, tvHistoryStatus, tvCategory;
     private CardView cardOptionA, cardOptionB, cardOptionC, cardOptionD, criticalBadge, imageCard, explanationCard;
     private ImageView ivQuestion, btnBack, btnBookmark;
     private Button btnPrevious, btnNext;
@@ -68,6 +68,7 @@ public class QuestionActivity extends AppCompatActivity {
         tvOptionD = findViewById(R.id.tvOptionD);
         tvExplanation = findViewById(R.id.tvExplanation);
         tvHistoryStatus = findViewById(R.id.tvHistoryStatus);
+        tvCategory = findViewById(R.id.tvCategory);
         cardOptionA = findViewById(R.id.cardOptionA);
         cardOptionB = findViewById(R.id.cardOptionB);
         cardOptionC = findViewById(R.id.cardOptionC);
@@ -92,12 +93,32 @@ public class QuestionActivity extends AppCompatActivity {
         
         if (category == null) {
             questions = questionDAO.getAllQuestions();
+            tvCategory.setText("Tất cả câu hỏi");
         } else if (category.equals("critical")) {
             questions = questionDAO.getCriticalQuestions();
+            tvCategory.setText("⚠️ Câu hỏi điểm liệt");
         } else if (category.equals("bookmarked")) {
             questions = bookmarkDAO.getBookmarkedQuestions();
+            tvCategory.setText("⭐ Đánh dấu");
+        } else if (category.equals("wrong")) {
+            java.util.Set<Integer> wrongIds = historyDAO.getWrongQuestionIds();
+            questions = questionDAO.getQuestionsByIds(wrongIds);
+            tvCategory.setText("❌ Câu hay sai");
         } else {
             questions = questionDAO.getQuestionsByCategory(category);
+            if (category.equals("Quy định chung và quy tắc giao thông đường bộ")) {
+                tvCategory.setText("📖 Khái niệm và quy tắc");
+            } else if (category.equals("Văn hóa giao thông, đạo đức người lái xe")) {
+                tvCategory.setText("🤝 Văn hóa và đạo đức");
+            } else if (category.equals("Kỹ thuật lái xe")) {
+                tvCategory.setText("🏍️ Kỹ thuật lái xe");
+            } else if (category.equals("Biển báo đường bộ")) {
+                tvCategory.setText("🚦 Biển báo đường bộ");
+            } else if (category.equals("Sa hình")) {
+                tvCategory.setText("🛣️ Sa hình");
+            } else {
+                tvCategory.setText(category);
+            }
         }
 
         if (questions.isEmpty()) {

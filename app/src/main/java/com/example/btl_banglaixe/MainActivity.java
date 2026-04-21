@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, SettingsActivity.class)));
 
         findViewById(R.id.cardStudy).setOnClickListener(v -> openQuestionActivity(null));
-        findViewById(R.id.cardSigns).setOnClickListener(v -> openQuestionActivity("Biển báo đường bộ"));
+        findViewById(R.id.cardWrongQuestions).setOnClickListener(v -> openQuestionActivity("wrong"));
         findViewById(R.id.cardExam).setOnClickListener(v -> startActivity(new Intent(this, ExamActivity.class)));
         findViewById(R.id.cardBookmark).setOnClickListener(v -> openQuestionActivity("bookmarked"));
 

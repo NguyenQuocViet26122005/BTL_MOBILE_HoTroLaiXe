@@ -118,6 +118,25 @@ public class HistoryDAO {
         dbHelper.getWritableDatabase().delete(TABLE_HISTORY, null, null);
     }
 
+    public Set<Integer> getWrongQuestionIds() {
+        Set<Integer> ids = new HashSet<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String query = "SELECT " + COLUMN_QUESTION_ID + " " +
+            "FROM " + TABLE_HISTORY + " " +
+            "WHERE " + COLUMN_HISTORY_ID + " IN (" +
+                "SELECT MAX(" + COLUMN_HISTORY_ID + ") " +
+                "FROM " + TABLE_HISTORY + " " +
+                "GROUP BY " + COLUMN_QUESTION_ID +
+            ") AND " + COLUMN_IS_CORRECT + " = 0";
+        
+        Cursor cursor = db.rawQuery(query, null);
+        while (cursor.moveToNext()) {
+            ids.add(cursor.getInt(0));
+        }
+        cursor.close();
+        return ids;
+    }
+
     public void close() {
         dbHelper.close();
     }

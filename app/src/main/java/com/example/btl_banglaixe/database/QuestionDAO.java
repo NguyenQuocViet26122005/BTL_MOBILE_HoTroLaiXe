@@ -89,6 +89,30 @@ public class QuestionDAO {
         return count;
     }
 
+    public List<Question> getQuestionsByIds(java.util.Set<Integer> ids) {
+        List<Question> questions = new ArrayList<>();
+        if (ids.isEmpty()) return questions;
+        
+        StringBuilder selection = new StringBuilder(COLUMN_ID + " IN (");
+        String[] selectionArgs = new String[ids.size()];
+        int i = 0;
+        for (Integer id : ids) {
+            if (i > 0) selection.append(",");
+            selection.append("?");
+            selectionArgs[i++] = String.valueOf(id);
+        }
+        selection.append(")");
+        
+        Cursor cursor = dbHelper.getReadableDatabase().query(TABLE_QUESTIONS, null,
+            selection.toString(), selectionArgs, null, null, null);
+        
+        while (cursor.moveToNext()) {
+            questions.add(cursorToQuestion(cursor));
+        }
+        cursor.close();
+        return questions;
+    }
+
     public Question cursorToQuestion(Cursor c) {
         Question q = new Question();
         q.setId(c.getInt(c.getColumnIndexOrThrow(COLUMN_ID)));
